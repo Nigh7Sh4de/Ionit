@@ -21,16 +21,17 @@ import Styles from './Styles'
 export default class App extends Component<{}> {
   constructor(props) {
     super(props)
-    this.state = {}
+    this.state = { data: [] }
   }
-  
+
   fetchData() {
     AsyncStorage.getItem('data')
     .then((data) => {
       console.log(data)
-      this.setState({
-        data
-      })
+      if (data)
+        this.setState({
+          data
+        })
     })
     .catch((error) => {
       console.error(error)
@@ -47,6 +48,12 @@ export default class App extends Component<{}> {
     })
   }
 
+  createTask(task) {
+    this.setState({
+      data: this.state.data.push(task)
+    })
+  }
+
   componentWillMount() {
       this.fetchData()
   }
@@ -56,7 +63,8 @@ export default class App extends Component<{}> {
       <View>
         <FilterView style={Styles} />
         <DataView data={this.state.data} />
-        <ActionsView />
+        <ActionsView 
+          createTask={this.createTask.bind(this)} />
       </View>
     )
   }
