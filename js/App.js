@@ -27,10 +27,10 @@ export default class App extends Component<{}> {
   fetchData() {
     AsyncStorage.getItem('data')
     .then((data) => {
-      console.log(data)
+      
       if (data)
         this.setState({
-          data
+          data: JSON.parse(data)
         })
     })
     .catch((error) => {
@@ -39,7 +39,7 @@ export default class App extends Component<{}> {
   }
 
   saveData() {
-    AsynStorage.setItem('data', this.state.data.toString())
+    AsyncStorage.setItem('data', JSON.stringify(this.state.data))
     .then((result) => {
       console.log('Saved', result)
     })
@@ -50,8 +50,8 @@ export default class App extends Component<{}> {
 
   createTask(task) {
     this.setState({
-      data: this.state.data.push(task)
-    })
+      data: [...this.state.data, task]
+    }, this.saveData)
   }
 
   componentWillMount() {
