@@ -27,7 +27,7 @@ export default class App extends Component<{}> {
   fetchData() {
     AsyncStorage.getItem('data')
     .then((data) => {
-      
+      console.log('Fetched', data)
       if (data)
         this.setState({
           data: JSON.parse(data)
@@ -54,6 +54,17 @@ export default class App extends Component<{}> {
     }, this.saveData)
   }
 
+  purgeTasks() {
+    AsyncStorage.removeItem('data')
+    .then(function(result) {
+      console.log('Purged', result)
+    })
+    .then(this.fetchData)
+    .catch(function(error) {
+      console.error(error)
+    })
+  }
+
   componentWillMount() {
       this.fetchData()
   }
@@ -64,7 +75,9 @@ export default class App extends Component<{}> {
         <FilterView style={Styles} />
         <DataView data={this.state.data} />
         <ActionsView 
-          createTask={this.createTask.bind(this)} />
+          createTask={this.createTask.bind(this)} 
+          purgeTasks={this.purgeTasks.bind(this)}
+          />
       </View>
     )
   }
