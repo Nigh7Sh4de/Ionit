@@ -28,10 +28,9 @@ export default class App extends Component<{}> {
     AsyncStorage.getItem('data')
     .then((data) => {
       console.log('Fetched', data)
-      if (data)
-        this.setState({
-          data: JSON.parse(data)
-        })
+      this.setState({
+        data: data ? JSON.parse(data) : []
+      })
     })
     .catch((error) => {
       console.error(error)
@@ -59,7 +58,7 @@ export default class App extends Component<{}> {
     .then(function(result) {
       console.log('Purged', result)
     })
-    .then(this.fetchData)
+    .then(this.fetchData.bind(this))
     .catch(function(error) {
       console.error(error)
     })
