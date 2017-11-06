@@ -8,17 +8,22 @@ import {
   StyleSheet
 } from 'react-native';
 
+import DatePicker from 'react-native-datepicker'
+
+const defState = {
+  name: '',
+  date: '2017-11-06'
+}
+
 export default class NewTaskInline extends Component<{}> {
   constructor(props) {
-    super(props);
-    this.state = { name: '' }
+    super(props)
+    this.state = defState
   }
 
   submit() {
     this.props.createTask(this.state)
-    this.setState({
-      name: ''
-    })
+    this.setState(defState)
   }
 
   render() {
@@ -26,10 +31,13 @@ export default class NewTaskInline extends Component<{}> {
       <View>
         <TextInput 
             placeholder="New task"
-            onChangeText={text=>this.setState({
-                name: text
-              })} 
+            onChangeText={text=>this.setState({ name: text })} 
             value={this.state.name} />
+          <DatePicker
+              mode="datetime"
+              date={this.state.date}
+              onDateChange={date=>this.setState({ date })}
+              />
         <Button 
             onPress={this.submit.bind(this)}
             title="Done" />

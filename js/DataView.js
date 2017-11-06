@@ -8,7 +8,7 @@ import {
 
 export default class DataView extends Component<{}> {
   renderItem({item}) {
-    return <Text>Item: {item.name}</Text>
+    return <Text>Item: {item.name} {item.date}</Text>
   }
 
   render() {
