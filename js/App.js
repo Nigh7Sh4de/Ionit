@@ -72,8 +72,10 @@ export default class App extends Component<{}> {
     return (
       <View>
         <FilterView style={Styles} />
-        <DataView data={this.state.data} />
-        <ActionsView 
+        <DataView 
+          data={this.state.data}
+          />
+        <ActionsView
           createTask={this.createTask.bind(this)} 
           purgeTasks={this.purgeTasks.bind(this)}
           />

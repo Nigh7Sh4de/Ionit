@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 
 import {
   View,
@@ -6,38 +6,68 @@ import {
   TextInput,
   Button,
   StyleSheet
-} from 'react-native';
+} from 'react-native'
 
 import DatePicker from 'react-native-datepicker'
 
-const defState = {
-  name: '',
-  date: '2017-11-06'
+import Styles from './Styles'
+
+const hour = 1000 * 60 * 60
+
+generate_def_state = () => {
+  const next = new Date(Math.ceil(Date.now() / hour ) * hour)
+  const later = new Date(next.getTime() + hour)
+  return {
+    name: '',
+    start: next,
+    end: later
+  }
 }
 
 export default class NewTaskInline extends Component<{}> {
   constructor(props) {
     super(props)
-    this.state = defState
+    this.state = generate_def_state()
   }
 
   submit() {
     this.props.createTask(this.state)
-    this.setState(defState)
+    this.setState(generate_def_state())
+  }
+
+  updateStart(start) {
+    const date = new Date(start)
+    this.setState({
+      start: new Date(date),
+      end: new Date(date.getTime() + hour)
+    })
+  }
+
+  updateEnd(end) {
+    this.setState({ end: new Date(end) })
   }
 
   render() {
+    console.log('redraw')
     return (
-      <View>
+      <View style={Styles.container}>
+        <Text>Name: </Text>
         <TextInput 
-            placeholder="New task"
-            onChangeText={text=>this.setState({ name: text })} 
-            value={this.state.name} />
-          <DatePicker
-              mode="datetime"
-              date={this.state.date}
-              onDateChange={date=>this.setState({ date })}
-              />
+          placeholder="New task"
+          onChangeText={name=>this.setState({ name })} 
+          value={this.state.name} />
+        <Text>Start: </Text>
+        <DatePicker
+          mode="datetime"
+          date={this.state.start}
+          onDateChange={this.updateStart.bind(this)}
+          />
+        <Text>End: </Text>
+        <DatePicker
+            mode="datetime"
+            date={this.state.end}
+            onDateChange={this.updateEnd.bind(this)}
+            />
         <Button 
             onPress={this.submit.bind(this)}
             title="Done" />
@@ -45,7 +75,3 @@ export default class NewTaskInline extends Component<{}> {
     )
   }
 }
-
-const styles = StyleSheet.create({
-
-})

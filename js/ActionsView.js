@@ -12,6 +12,7 @@ export default class ActionsView extends Component<{}> {
   render() {
     return (
       <View>
+        <Text>New Task:</Text>
         <NewTaskInline
           createTask={this.props.createTask} />
         <Button
