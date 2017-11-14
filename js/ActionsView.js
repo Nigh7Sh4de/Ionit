@@ -8,7 +8,7 @@ import {
 
 import NewTaskInline from './NewTaskInline'
 
-export default class ActionsView extends Component<{}> {
+export default class ActionsView extends Component {
   render() {
     return (
       <View>

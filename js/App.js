@@ -18,7 +18,7 @@ import ActionsView from './ActionsView'
 
 import Styles from './Styles'
 
-export default class App extends Component<{}> {
+export default class App extends Component {
   constructor(props) {
     super(props)
     this.state = { data: [] }

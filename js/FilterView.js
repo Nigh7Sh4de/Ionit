@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 
 
-export default class FilterView extends Component<{}> {
+export default class FilterView extends Component {
   render() {
     return (
       <View>

@@ -26,7 +26,7 @@ generate_def_state = () => {
   }
 }
 
-export default class NewTaskInline extends Component<{}> {
+export default class NewTaskInline extends Component {
   constructor(props) {
     super(props)
     this.state = generate_def_state()

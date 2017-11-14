@@ -8,7 +8,7 @@ import {
 
 import Styles from './Styles'
 
-export default class DataView extends Component<{}> {
+export default class DataView extends Component {
   renderItem({item}) {
     return <Text>Item: {item.name} {item.start}-{item.end}</Text>
   }
