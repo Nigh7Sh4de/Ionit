@@ -27,10 +27,9 @@ export default class App extends Component<{}> {
   fetchData() {
     AsyncStorage.getItem('data')
     .then((data) => {
-      console.log('Fetched', data)
       this.setState({
         data: data ? JSON.parse(data) : []
-      })
+      }, () => console.log('Fetched', this.state.data))
     })
     .catch((error) => {
       console.error(error)
@@ -78,6 +77,7 @@ export default class App extends Component<{}> {
         <ActionsView
           createTask={this.createTask.bind(this)} 
           purgeTasks={this.purgeTasks.bind(this)}
+          data={this.state.data}
           />
       </View>
     )

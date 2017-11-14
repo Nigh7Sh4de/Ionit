@@ -5,7 +5,8 @@ import {
   Text,
   TextInput,
   Button,
-  StyleSheet
+  StyleSheet,
+  Picker
 } from 'react-native'
 
 import DatePicker from 'react-native-datepicker'
@@ -19,8 +20,9 @@ generate_def_state = () => {
   const later = new Date(next.getTime() + hour)
   return {
     name: '',
-    start: next,
-    end: later
+    start: next.toString(),
+    end: later.toString(),
+    parent: null
   }
 }
 
@@ -38,17 +40,44 @@ export default class NewTaskInline extends Component<{}> {
   updateStart(start) {
     const date = new Date(start)
     this.setState({
-      start: new Date(date),
-      end: new Date(date.getTime() + hour)
+      start: new Date(date).toString(),
+      end: new Date(date.getTime() + hour).toString()
     })
   }
 
   updateEnd(end) {
-    this.setState({ end: new Date(end) })
+    this.setState({ end: new Date(end).toString() })
+  }
+
+  updateParent(parent, itemIndex) {
+    this.setState({ parent })
   }
 
   render() {
-    console.log('redraw')
+
+    let parent_picker = {
+      data: [{
+        label: 'No items to select as parent.',
+        name: null
+      }],
+      enabled: false
+    }
+
+    if (this.props.data && this.props.data.length > 0) {
+      parent_picker.enabled = true;
+      parent_picker.data = [{
+        label: 'Select Parent',
+        name: null
+      }].concat(this.props.data);
+    }
+
+    parent_picker.items = parent_picker.data.map(item =>
+      <Picker.Item
+        key={item.name}
+        label={item.label || item.name}
+        value={item.name} />
+    )
+
     return (
       <View style={Styles.container}>
         <Text>Name: </Text>
@@ -59,15 +88,20 @@ export default class NewTaskInline extends Component<{}> {
         <Text>Start: </Text>
         <DatePicker
           mode="datetime"
-          date={this.state.start}
+          date={new Date(this.state.start)}
           onDateChange={this.updateStart.bind(this)}
           />
         <Text>End: </Text>
         <DatePicker
-            mode="datetime"
-            date={this.state.end}
-            onDateChange={this.updateEnd.bind(this)}
-            />
+          mode="datetime"
+          date={new Date(this.state.end)}
+          onDateChange={this.updateEnd.bind(this)}
+          />
+        <Picker 
+          selectedValue={this.state.parent}
+          onValueChange={this.updateParent.bind(this)}
+          enabled={parent_picker.enabled}
+          >{parent_picker.items}</Picker>
         <Button 
             onPress={this.submit.bind(this)}
             title="Done" />
@@ -75,3 +109,10 @@ export default class NewTaskInline extends Component<{}> {
     )
   }
 }
+
+// NewTaskInline.defaultProps = {
+//   data: [{
+//     label: 'Choose Parent',
+//     name: null
+//   }]
+// }

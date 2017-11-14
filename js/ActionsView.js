@@ -14,7 +14,9 @@ export default class ActionsView extends Component<{}> {
       <View>
         <Text>New Task:</Text>
         <NewTaskInline
-          createTask={this.props.createTask} />
+          createTask={this.props.createTask} 
+          data={this.props.data} 
+          />
         <Button
           onPress={this.props.purgeTasks}
           color="#ee2222"
