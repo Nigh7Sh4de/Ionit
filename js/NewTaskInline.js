@@ -40,6 +40,12 @@ export default class NewTaskInline extends Component {
       this.setState(newProps.task);
   }
 
+  addSubTask() {
+    let newTask = generate_def_state()
+    newTask.parent = this.state.name
+    this.setState(newTask)
+  }
+
   submit() {
     this.props.createTask(this.state)
     this.setState(generate_def_state())
@@ -118,6 +124,11 @@ export default class NewTaskInline extends Component {
         <Button 
             onPress={this.submit.bind(this)}
             title="Done" />
+        <Button 
+            onPress={this.addSubTask.bind(this)}
+            color="#2b5"
+            disabled={!this.state.name}
+            title="Add Sub-Task" />
         <Button 
             onPress={this.cancel.bind(this)}
             color="#9a9a9a"
