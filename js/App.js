@@ -64,6 +64,13 @@ export default class App extends Component {
     }, this.saveData)
   }
 
+  deleteTask(task) {
+    this.setState({
+      data: [...this.state.data.filter(t => t.name != task.name)],
+      editTask: null
+    }, this.saveData)
+  }
+
   purgeTasks() {
     AsyncStorage.removeItem('data')
     .then(function(result) {
@@ -91,6 +98,7 @@ export default class App extends Component {
           createTask={this.createTask.bind(this)} 
           purgeTasks={this.purgeTasks.bind(this)}
           cancelEdit={this.cancelEdit.bind(this)}
+          deleteTask={this.deleteTask.bind(this)}
           edit_task={this.state.editTask}
           data={this.state.data}
           />

@@ -14,7 +14,8 @@ export default class ActionsView extends Component {
       <View>
         <Text>New Task:</Text>
         <NewTaskInline
-          createTask={this.props.createTask} 
+          createTask={this.props.createTask}
+          deleteTask={this.props.deleteTask} 
           cancelEdit={this.props.cancelEdit}
           task={this.props.edit_task}
           data={this.props.data} 

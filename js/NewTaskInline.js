@@ -51,6 +51,11 @@ export default class NewTaskInline extends Component {
     this.setState(generate_def_state())
   }
 
+  delete() {
+    this.props.deleteTask(this.state)
+    this.setState(generate_def_state())
+  }
+
   cancel() {
     this.props.cancelEdit()
     this.setState(generate_def_state())
@@ -129,6 +134,11 @@ export default class NewTaskInline extends Component {
             color="#2b5"
             disabled={!this.state.name}
             title="Add Sub-Task" />
+        <Button 
+            onPress={this.delete.bind(this)}
+            color="red"
+            disabled={!this.state.name}
+            title="Delete" />
         <Button 
             onPress={this.cancel.bind(this)}
             color="#9a9a9a"
