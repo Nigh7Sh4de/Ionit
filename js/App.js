@@ -21,7 +21,10 @@ import Styles from './Styles'
 export default class App extends Component {
   constructor(props) {
     super(props)
-    this.state = { data: [] }
+    this.state = { 
+      data: [],
+      editTask: null
+    }
   }
 
   fetchData() {
@@ -46,9 +49,18 @@ export default class App extends Component {
     })
   }
 
+  editTask(editTask) {
+    this.setState({ editTask })
+  }
+
+  cancelEdit() {
+    this.setState({ editTask: null })
+  }
+
   createTask(task) {
     this.setState({
-      data: [...this.state.data, task]
+      data: [...this.state.data.filter(t => t.name != task.name), task],
+      editTask: null
     }, this.saveData)
   }
 
@@ -72,11 +84,14 @@ export default class App extends Component {
       <View>
         <FilterView style={Styles} />
         <DataView 
+          editTask={this.editTask.bind(this)}
           data={this.state.data}
           />
         <ActionsView
           createTask={this.createTask.bind(this)} 
           purgeTasks={this.purgeTasks.bind(this)}
+          cancelEdit={this.cancelEdit.bind(this)}
+          edit_task={this.state.editTask}
           data={this.state.data}
           />
       </View>

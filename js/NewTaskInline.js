@@ -32,8 +32,21 @@ export default class NewTaskInline extends Component {
     this.state = generate_def_state()
   }
 
+  componentWillReceiveProps(newProps) {
+    if (newProps.task && (
+        !this.props.task ||
+        newProps.task.name != this.props.task.name
+    ))
+      this.setState(newProps.task);
+  }
+
   submit() {
     this.props.createTask(this.state)
+    this.setState(generate_def_state())
+  }
+
+  cancel() {
+    this.props.cancelEdit()
     this.setState(generate_def_state())
   }
 
@@ -105,14 +118,11 @@ export default class NewTaskInline extends Component {
         <Button 
             onPress={this.submit.bind(this)}
             title="Done" />
+        <Button 
+            onPress={this.cancel.bind(this)}
+            color="#9a9a9a"
+            title="Cancel" />
       </View>
     )
   }
 }
-
-// NewTaskInline.defaultProps = {
-//   data: [{
-//     label: 'Choose Parent',
-//     name: null
-//   }]
-// }
