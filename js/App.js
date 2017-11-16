@@ -8,6 +8,7 @@ import React, { Component } from 'react'
 import {
   Platform,
   AsyncStorage,
+  ScrollView,
   Text,
   View
 } from 'react-native'
@@ -88,8 +89,7 @@ export default class App extends Component {
 
   render() {
     return (
-      <View>
-        <FilterView style={Styles} />
+      <ScrollView>
         <DataView 
           editTask={this.editTask.bind(this)}
           data={this.state.data}
@@ -102,7 +102,7 @@ export default class App extends Component {
           edit_task={this.state.editTask}
           data={this.state.data}
           />
-      </View>
+      </ScrollView>
     )
   }
 }

@@ -7,9 +7,41 @@ import {
   FlatList
 } from 'react-native'
 
+import FilterView from './FilterView'
+
 import Styles from './Styles'
 
 export default class DataView extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      data: props.data
+    }
+  }
+
+  componentWillMount() {
+    this.setState({
+      data: this.props.data
+    })
+  }
+
+  componentWillReceiveProps(newProps) {
+    this.setState({
+      data: newProps.data
+    })
+  }
+
+  updateFilter(filter) {
+    this.setState({
+      data: this.props.data.filter(item => {
+        if (filter.master &&
+            !!item.parent) return false;
+
+        return true;
+      })
+    })
+  }
+
   renderItem({item}) {
     return (
       <View>
@@ -27,12 +59,15 @@ export default class DataView extends Component {
   render() {
     return (
       <View>
+        <FilterView
+          updateFilter={this.updateFilter.bind(this)}
+          />
         <Text>
           Tasks:
         </Text>
         <FlatList 
           style={Styles.container}
-          data={this.props.data}
+          data={this.state.data}
           renderItem={this.renderItem.bind(this)}
           keyExtractor={item => item.name}
           />
