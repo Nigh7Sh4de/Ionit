@@ -13,7 +13,7 @@ import {
   View
 } from 'react-native'
 
-import FilterView from './FilterView'
+import LoginView from './LoginView'
 import DataView from './DataView'
 import ActionsView from './ActionsView'
 
@@ -90,6 +90,7 @@ export default class App extends Component {
   render() {
     return (
       <ScrollView>
+        <LoginView />
         <DataView 
           editTask={this.editTask.bind(this)}
           data={this.state.data}
