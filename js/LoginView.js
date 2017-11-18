@@ -19,7 +19,8 @@ export default class LoginView extends Component {
   
   componentWillMount() {
     GoogleSignIn.configure({
-      clientID: '516748484660-l7rjdnvd8oafp38e0dut9r3l8ocgcser.apps.googleusercontent.com',
+      // clientID: '516748484660-l7rjdnvd8oafp38e0dut9r3l8ocgcser.apps.googleusercontent.com', //Laptop
+      clientID: '516748484660-e1713ne24akk8pk8qd5nhpc1nc25ibl0.apps.googleusercontent.com', //Desktop
       scopes: [
         'https://www.googleapis.com/auth/calendar'
       ]
@@ -27,9 +28,14 @@ export default class LoginView extends Component {
   }
 
   async logIn() {
-    this.setState({
-      user = await GoogleSignIn.signInPromise()
-    }) 
+    try {
+      const user = await GoogleSignIn.signInPromise()
+      console.log(user)
+      this.setState({ user }) 
+    }
+    catch (e) {
+      console.error(e)
+    }
   }
 
   async logOut() {
@@ -52,10 +58,10 @@ export default class LoginView extends Component {
           title="Logout"
           color="red"
           />
-        <Button
+        {/* <Button
           onPress={this.getCalendars.bind(this)}
           title="Get Calendars"
-          />
+          /> */}
       </View>
     )
   }
