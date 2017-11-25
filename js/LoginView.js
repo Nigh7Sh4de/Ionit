@@ -17,14 +17,21 @@ export default class LoginView extends Component {
     }
   }
   
-  componentWillMount() {
-    GoogleSignIn.configure({
-      // clientID: '516748484660-l7rjdnvd8oafp38e0dut9r3l8ocgcser.apps.googleusercontent.com', //Laptop
-      clientID: '516748484660-e1713ne24akk8pk8qd5nhpc1nc25ibl0.apps.googleusercontent.com', //Desktop
-      scopes: [
-        'https://www.googleapis.com/auth/calendar'
-      ]
-    });
+  async componentWillMount() {
+    try {
+      console.log('attempt fetch')
+      const auth_info = await fetch('http://localhost:3000/auth')
+      GoogleSignIn.configure({
+        // clientID: '516748484660-l7rjdnvd8oafp38e0dut9r3l8ocgcser.apps.googleusercontent.com', //Laptop
+        clientID: '516748484660-e1713ne24akk8pk8qd5nhpc1nc25ibl0.apps.googleusercontent.com', //Desktop
+        // clientID: auth_info.json().auth_request.client_id,
+        scopes: auth_info.json().auth_request.scope,
+        serverClientID: auth_info.json().auth_request.client_id,
+        offlineAccess: true
+        // [ 'https://www.googleapis.com/auth/calendar' ]
+      });
+    }
+    catch(e) { console.error(e) }
   }
 
   async logIn() {
