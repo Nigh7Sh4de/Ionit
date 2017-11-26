@@ -10,7 +10,8 @@ import {
   AsyncStorage,
   ScrollView,
   Text,
-  View
+  View,
+  Button
 } from 'react-native'
 
 import LoginView from './LoginView'
@@ -24,8 +25,16 @@ export default class App extends Component {
     super(props)
     this.state = { 
       data: [],
-      editTask: null
+      editTask: null,
+      user: null
     }
+  }
+
+  setUser(user) {
+    console.log(user)
+    this.setState({
+      user
+    })
   }
 
   fetchData() {
@@ -38,6 +47,19 @@ export default class App extends Component {
     .catch((error) => {
       console.error(error)
     })
+  }
+
+  async fetchGoogleData() {
+    if (!this.state.user)
+      return console.error('No user authenticated')
+    const headers = {
+      Authorization: 'Bearer ' + this.state.user.accessToken
+    }
+    
+    const google_url = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
+    const response = await fetch(google_url, { headers })
+    const list = JSON.parse(response._bodyInit)
+    console.log(list)
   }
 
   saveData() {
@@ -90,7 +112,13 @@ export default class App extends Component {
   render() {
     return (
       <ScrollView>
-        <LoginView />
+        <LoginView
+          setUser={this.setUser.bind(this)} />
+        <Button
+          onPress={this.fetchGoogleData.bind(this)}
+          title="Get Google Data"
+          color="green"
+          />
         <DataView 
           editTask={this.editTask.bind(this)}
           data={this.state.data}

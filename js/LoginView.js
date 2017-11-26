@@ -30,8 +30,7 @@ export default class LoginView extends Component {
   async logIn() {
     try {
       const user = await GoogleSignIn.signInPromise()
-      console.log(user)
-      this.setState({ user }) 
+      this.props.setUser(user)
     }
     catch (e) {
       console.error(e)
@@ -40,9 +39,7 @@ export default class LoginView extends Component {
 
   async logOut() {
     GoogleSignIn.signOutPromise()
-    this.setState({
-      user: null
-    })
+    this.props.setUser(null)
   }
       
   render() {
