@@ -97,7 +97,7 @@ export default class NewTaskInline extends Component {
 
     parent_picker.items = parent_picker.data.map(item =>
       <Picker.Item
-        key={item.name}
+        key={item.id || item.name}
         label={item.label || item.name}
         value={item.name} />
     )

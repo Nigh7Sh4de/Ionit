@@ -11,7 +11,8 @@ export default class FilterView extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      master: false
+      master: false,
+      ionit: false
     }
   }
 
@@ -23,6 +24,10 @@ export default class FilterView extends Component {
     this.setState({ master }, this.updateFilter)
   }
 
+  updateIonit(ionit) {
+    this.setState({ ionit }, this.updateFilter)
+  }
+
   render() {
     return (
       <View>
@@ -30,6 +35,11 @@ export default class FilterView extends Component {
         <Switch
           onValueChange={this.updateMaster.bind(this)}
           value={this.state.master}
+          />
+        <Text>Only ionit:</Text>
+        <Switch
+          onValueChange={this.updateIonit.bind(this)}
+          value={this.state.ionit}
           />
       </View>
     )

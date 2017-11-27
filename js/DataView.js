@@ -36,6 +36,8 @@ export default class DataView extends Component {
       data: this.props.data.filter(item => {
         if (filter.master &&
             !!item.parent) return false;
+        if (filter.ionit &&
+            !!item.raw_from_google) return false;
 
         return true;
       })
@@ -69,7 +71,7 @@ export default class DataView extends Component {
           style={Styles.container}
           data={this.state.data}
           renderItem={this.renderItem.bind(this)}
-          keyExtractor={item => item.name}
+          keyExtractor={item => item.id}
           />
       </View>
     )
