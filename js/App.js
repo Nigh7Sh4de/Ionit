@@ -113,6 +113,20 @@ export default class App extends Component {
     }
     catch(e) { console.error(e) }
   }
+  
+  async deleteGoogleEvent(task) {
+    try {
+      const result = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events/' + task.id, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Bearer ' + this.state.user.accessToken
+        }
+      })
+      if (!result.ok) throw JSON.parse(result._bodyInit).error
+      return result
+    }
+    catch(e) { console.error(e) }
+  }
 
   async loadData() {
     const google_list = await this.fetchGoogleData()
@@ -149,11 +163,10 @@ export default class App extends Component {
     let local_data = Object.assign({}, this.state.local_data)
     try {
       if (this.state.editTask && this.state.editTask.id == task.id) {
-        const result = await this.updateGoogleEvent(task)
-        console.log(result)
+        await this.updateGoogleEvent(task)
       }
       else {
-        this.createGoogleEvent(task)
+        await this.createGoogleEvent(task)
       }
     }
     catch(e) { console.error(e) }
@@ -168,11 +181,14 @@ export default class App extends Component {
     }, this.saveData)
   }
 
-  deleteTask(task) {
+  async deleteTask(task) {
     const data = this.state.data
     const local_data = this.state.local_data
-
-    //TODO: delete Google event
+    
+    try {
+      const result = await this.deleteGoogleEvent(task)
+    }
+    catch(e) { console.error(e) }
 
     delete data[task.id]
     delete local_data[task.id]
