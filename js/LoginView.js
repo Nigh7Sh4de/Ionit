@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import GoogleSignIn from 'react-native-google-sign-in';
 
 import {
     View,
@@ -7,7 +6,7 @@ import {
     Button
 } from 'react-native'
 
-
+import GoogleSignIn from 'react-native-google-sign-in';
 
 export default class LoginView extends Component {
   constructor(props) {
@@ -17,16 +16,6 @@ export default class LoginView extends Component {
     }
   }
   
-  componentWillMount() {
-    GoogleSignIn.configure({
-      // clientID: '516748484660-l7rjdnvd8oafp38e0dut9r3l8ocgcser.apps.googleusercontent.com', //Laptop
-      clientID: '516748484660-e1713ne24akk8pk8qd5nhpc1nc25ibl0.apps.googleusercontent.com', //Desktop
-      scopes: [
-        'https://www.googleapis.com/auth/calendar'
-      ]
-    });
-  }
-
   async logIn() {
     try {
       const user = await GoogleSignIn.signInPromise()
@@ -45,7 +34,6 @@ export default class LoginView extends Component {
   render() {
     return (
       <View>
-        <Text>HELLO!</Text>
         <Button
           onPress={this.logIn.bind(this)}
           title="Login"
@@ -55,10 +43,6 @@ export default class LoginView extends Component {
           title="Logout"
           color="red"
           />
-        {/* <Button
-          onPress={this.getCalendars.bind(this)}
-          title="Get Calendars"
-          /> */}
       </View>
     )
   }
