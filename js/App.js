@@ -84,7 +84,6 @@ export default class App extends Component {
 
   async createGoogleEvent(task) {
     try {
-      //TODO: error comes back as passed response, check response code
       const result = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
         method: 'POST',
         body: JSON.stringify(task),
@@ -93,6 +92,7 @@ export default class App extends Component {
           'Authorization': 'Bearer ' + this.state.user.accessToken
         }
       })
+      if (!result.ok) throw JSON.parse(result._bodyInit).error
       return result
     }
     catch(e) { console.error(e) }
@@ -100,7 +100,6 @@ export default class App extends Component {
 
   async updateGoogleEvent(task) {
     try {
-      //TODO: error comes back as passed response, check response code
       const result = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events/' + task.id, {
         method: 'PUT',
         body: JSON.stringify(task),
@@ -109,6 +108,7 @@ export default class App extends Component {
           'Authorization': 'Bearer ' + this.state.user.accessToken
         }
       })
+      if (!result.ok) throw JSON.parse(result._bodyInit).error
       return result
     }
     catch(e) { console.error(e) }
