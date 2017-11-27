@@ -20,7 +20,8 @@ export default class App extends Component {
   constructor(props) {
     super(props)
     this.state = { 
-      data: [],
+      data: {},
+      local_data: {},
       editTask: null,
       user: null
     }
@@ -54,7 +55,7 @@ export default class App extends Component {
 
   async fetchData() {
     try {
-      const items = await AsyncStorage.getItem('data')
+      const items = await AsyncStorage.getItem('local_data')
       return items ? JSON.parse(items) : {}
     }
     catch(e) { console.error(e) }
@@ -71,19 +72,26 @@ export default class App extends Component {
     google_url += 'timeMin=' + new Date('2017/11/01').toISOString()
     try {
       const response = await fetch(google_url, { headers })
-      return JSON.parse(response._bodyInit).items.filter(item => (
+      const list = JSON.parse(response._bodyInit).items.filter(item => (
         item.status != 'cancelled'
       ))
+      const data = {}
+      list.forEach(i => data[i.id] = i)
+      return data
     }
     catch(e) { console.error(e) }
   }
 
   async createGoogleEvent(task) {
-    //TODO: normalize task
     try {
+      //TODO: error comes back as passed response, check response code
       const result = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
         method: 'POST',
-        body: task
+        body: JSON.stringify(task),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + this.state.user.accessToken
+        }
       })
       return result
     }
@@ -91,11 +99,15 @@ export default class App extends Component {
   }
 
   async updateGoogleEvent(task) {
-    //TODO: normalize task
     try {
+      //TODO: error comes back as passed response, check response code
       const result = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events/' + task.id, {
         method: 'PUT',
-        body: task
+        body: JSON.stringify(task),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + this.state.user.accessToken
+        }
       })
       return result
     }
@@ -105,12 +117,11 @@ export default class App extends Component {
   async loadData() {
     const google_list = await this.fetchGoogleData()
     const local_list = await this.fetchData()
-    const merged_list = google_list.map(gitem =>
-      Object.assign(gitem, { ionit: local_list[gitem.id] })
-    )
+    for (var id in google_list)
+      google_list[id].ionit = local_list[id]
 
     this.setState({
-      data: merged_list,
+      data: google_list,
       local_data: local_list
     })
   }
@@ -133,17 +144,41 @@ export default class App extends Component {
     this.setState({ editTask: null })
   }
 
-  createTask(task) {
+  async createTask(task) {
+    let data = Object.assign({}, this.state.data)
+    let local_data = Object.assign({}, this.state.local_data)
+    try {
+      if (this.state.editTask && this.state.editTask.id == task.id) {
+        const result = await this.updateGoogleEvent(task)
+        console.log(result)
+      }
+      else {
+        this.createGoogleEvent(task)
+      }
+    }
+    catch(e) { console.error(e) }
 
+    data[task.id] = task
+    if (task.ionit) 
+      local_data[task.id] = task.ionit
     this.setState({
-      data: [...this.state.data.filter(t => t.name != task.name), task],
+      data,
+      local_data,
       editTask: null
     }, this.saveData)
   }
 
   deleteTask(task) {
+    const data = this.state.data
+    const local_data = this.state.local_data
+
+    //TODO: delete Google event
+
+    delete data[task.id]
+    delete local_data[task.id]
     this.setState({
-      data: [...this.state.data.filter(t => t.name != task.name)],
+      data,
+      local_data,
       editTask: null
     }, this.saveData)
   }
