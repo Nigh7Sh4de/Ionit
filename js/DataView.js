@@ -35,9 +35,10 @@ export default class DataView extends Component {
     this.setState({
       data: this.props.data.filter(item => {
         if (filter.master &&
-            !!item.parent) return false;
+            !!item.ionit &&
+            !!item.ionit.parent) return false;
         if (filter.ionit &&
-            !!item.raw_from_google) return false;
+            !item.ionit) return false;
 
         return true;
       })
@@ -52,7 +53,7 @@ export default class DataView extends Component {
           title="Edit"
           />
         <Text>
-          Item: {item.name} {item.start}-{item.end}
+          Item: {item.summary} {item.start.dateTime}-{item.end.dateTime}
         </Text>
       </View>
     )

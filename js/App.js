@@ -78,18 +78,36 @@ export default class App extends Component {
     catch(e) { console.error(e) }
   }
 
+  async createGoogleEvent(task) {
+    //TODO: normalize task
+    try {
+      const result = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+        method: 'POST',
+        body: task
+      })
+      return result
+    }
+    catch(e) { console.error(e) }
+  }
+
+  async updateGoogleEvent(task) {
+    //TODO: normalize task
+    try {
+      const result = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events/' + task.id, {
+        method: 'PUT',
+        body: task
+      })
+      return result
+    }
+    catch(e) { console.error(e) }
+  }
+
   async loadData() {
     const google_list = await this.fetchGoogleData()
     const local_list = await this.fetchData()
-    const merged_list = google_list.map(gitem => {
-      const litem = local_list[gitem.id] || { raw_from_google: true }
-      return Object.assign({}, litem, {
-          id: gitem.id,
-          name: gitem.summary,
-          start: gitem.start.dateTime,
-          end: gitem.end.dateTime
-        })
-    })
+    const merged_list = google_list.map(gitem =>
+      Object.assign(gitem, { ionit: local_list[gitem.id] })
+    )
 
     this.setState({
       data: merged_list,
@@ -116,6 +134,7 @@ export default class App extends Component {
   }
 
   createTask(task) {
+
     this.setState({
       data: [...this.state.data.filter(t => t.name != task.name), task],
       editTask: null
@@ -149,7 +168,7 @@ export default class App extends Component {
           createTask={this.createTask.bind(this)}
           cancelEdit={this.cancelEdit.bind(this)}
           deleteTask={this.deleteTask.bind(this)} 
-          edit_task={this.state.edit_task}
+          task={this.state.editTask}
           data={this.state.data} 
           />
         <DataView 

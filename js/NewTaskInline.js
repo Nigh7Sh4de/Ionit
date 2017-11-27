@@ -19,10 +19,16 @@ generate_def_state = () => {
   const next = new Date(Math.ceil(Date.now() / hour ) * hour)
   const later = new Date(next.getTime() + hour)
   return {
-    name: '',
-    start: next.toString(),
-    end: later.toString(),
-    parent: null
+    summary: '',
+    start: {
+      dateTime: next.toString()
+    },
+    end: {
+      dateTime: later.toString()
+    },
+    ionit: {
+      parent: null
+    }
   }
 }
 
@@ -35,14 +41,14 @@ export default class NewTaskInline extends Component {
   componentWillReceiveProps(newProps) {
     if (newProps.task && (
         !this.props.task ||
-        newProps.task.name != this.props.task.name
+        newProps.task.id != this.props.task.id
     ))
       this.setState(newProps.task);
   }
 
   addSubTask() {
     let newTask = generate_def_state()
-    newTask.parent = this.state.name
+    newTask.ionit.parent = this.state.id
     this.setState(newTask)
   }
 
@@ -64,17 +70,17 @@ export default class NewTaskInline extends Component {
   updateStart(start) {
     const date = new Date(start)
     this.setState({
-      start: new Date(date).toString(),
-      end: new Date(date.getTime() + hour).toString()
+      start: { dateTime: new Date(date).toString() }, 
+      end: { dateTime: new Date(date.getTime() + hour).toString() }
     })
   }
 
   updateEnd(end) {
-    this.setState({ end: new Date(end).toString() })
+    this.setState({ end: { dateTime: new Date(end).toString() }})
   }
 
   updateParent(parent, itemIndex) {
-    this.setState({ parent })
+    this.setState({ ionit: { parent }})
   }
 
   render() {
@@ -82,7 +88,7 @@ export default class NewTaskInline extends Component {
     let parent_picker = {
       data: [{
         label: 'No items to select as parent.',
-        name: null
+        id: null
       }],
       enabled: false
     }
@@ -91,15 +97,15 @@ export default class NewTaskInline extends Component {
       parent_picker.enabled = true;
       parent_picker.data = [{
         label: 'Select Parent',
-        name: null
+        id: null
       }].concat(this.props.data);
     }
 
     parent_picker.items = parent_picker.data.map(item =>
       <Picker.Item
-        key={item.id || item.name}
-        label={item.label || item.name}
-        value={item.name} />
+        key={item.id}
+        label={item.label || item.summary}
+        value={item.id} />
     )
 
     return (
@@ -107,22 +113,22 @@ export default class NewTaskInline extends Component {
         <Text>Name: </Text>
         <TextInput 
           placeholder="New task"
-          onChangeText={name=>this.setState({ name })} 
-          value={this.state.name} />
+          onChangeText={summary=>this.setState({ summary })} 
+          value={this.state.summary} />
         <Text>Start: </Text>
         <DatePicker
           mode="datetime"
-          date={new Date(this.state.start)}
+          date={new Date(this.state.start.dateTime)}
           onDateChange={this.updateStart.bind(this)}
           />
         <Text>End: </Text>
         <DatePicker
           mode="datetime"
-          date={new Date(this.state.end)}
+          date={new Date(this.state.end.dateTime)}
           onDateChange={this.updateEnd.bind(this)}
           />
         <Picker 
-          selectedValue={this.state.parent}
+          selectedValue={this.state.ionit ? this.state.ionit.parent : false}
           onValueChange={this.updateParent.bind(this)}
           enabled={parent_picker.enabled}
           >{parent_picker.items}</Picker>
@@ -132,12 +138,12 @@ export default class NewTaskInline extends Component {
         <Button 
             onPress={this.addSubTask.bind(this)}
             color="#2b5"
-            disabled={!this.state.name}
+            disabled={!this.state.id}
             title="Add Sub-Task" />
         <Button 
             onPress={this.delete.bind(this)}
             color="red"
-            disabled={!this.state.name}
+            disabled={!this.state.id}
             title="Delete" />
         <Button 
             onPress={this.cancel.bind(this)}
