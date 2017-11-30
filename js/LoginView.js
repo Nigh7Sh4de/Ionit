@@ -37,11 +37,13 @@ export default class LoginView extends Component {
         <Button
           onPress={this.logIn.bind(this)}
           title="Login"
+          disabled={this.props.logged_in}
           />
         <Button
           onPress={this.logOut.bind(this)}
           title="Logout"
           color="red"
+          disabled={!this.props.logged_in}
           />
       </View>
     )
