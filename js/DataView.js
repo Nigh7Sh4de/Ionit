@@ -15,19 +15,19 @@ export default class DataView extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      data: Object.values(props.data)
+      data: props.data
     }
   }
 
   componentWillMount() {
     this.setState({
-      data: Object.values(this.props.data)
+      data: this.props.data
     })
   }
 
   componentWillReceiveProps(newProps) {
     this.setState({
-      data: Object.values(newProps.data)
+      data: newProps.data
     })
   }
 

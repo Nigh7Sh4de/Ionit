@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import {
   Platform,
-  AsyncStorage,
   ScrollView,
   Text,
   View,
@@ -28,6 +27,7 @@ export default class App extends Component {
   }
   
   async componentWillMount() {
+    // debugger
     GoogleSignIn.configure({
       // clientID: '516748484660-l7rjdnvd8oafp38e0dut9r3l8ocgcser.apps.googleusercontent.com', //Laptop
       clientID: '516748484660-e1713ne24akk8pk8qd5nhpc1nc25ibl0.apps.googleusercontent.com', //Desktop
@@ -50,15 +50,7 @@ export default class App extends Component {
     console.log(user)
     this.setState({
       user
-    }, this.loadData)
-  }
-
-  async fetchData() {
-    try {
-      const items = await AsyncStorage.getItem('local_data')
-      return items ? JSON.parse(items) : {}
-    }
-    catch(e) { console.error(e) }
+    }, user ? this.loadData : ()=>{})
   }
 
   async fetchGoogleData() {
@@ -75,9 +67,7 @@ export default class App extends Component {
       const list = JSON.parse(response._bodyInit).items.filter(item => (
         item.status != 'cancelled'
       ))
-      const data = {}
-      list.forEach(i => data[i.id] = i)
-      return data
+      return list
     }
     catch(e) { console.error(e) }
   }
@@ -129,24 +119,10 @@ export default class App extends Component {
   }
 
   async loadData() {
-    const google_list = await this.fetchGoogleData()
-    const local_list = await this.fetchData()
-    for (var id in google_list)
-      google_list[id].ionit = local_list[id]
+    const google_data = await this.fetchGoogleData()
 
     this.setState({
-      data: google_list,
-      local_data: local_list
-    })
-  }
-
-  saveData() {
-    AsyncStorage.setItem('local_data', JSON.stringify(this.state.local_data))
-    .then((result) => {
-      console.log('Saved', result)
-    })
-    .catch((error) => {
-      console.error(error)
+      data: google_data
     })
   }
 
@@ -159,54 +135,41 @@ export default class App extends Component {
   }
 
   async createTask(task) {
-    let data = Object.assign({}, this.state.data)
-    let local_data = Object.assign({}, this.state.local_data)
+    let result;
     try {
       if (this.state.editTask && this.state.editTask.id == task.id) {
-        await this.updateGoogleEvent(task)
+        result = await this.updateGoogleEvent(task)
       }
       else {
-        await this.createGoogleEvent(task)
+        result = await this.createGoogleEvent(task)
       }
+      console.log(result)
     }
     catch(e) { console.error(e) }
 
-    data[task.id] = task
-    if (task.ionit) 
-      local_data[task.id] = task.ionit
-    this.setState({
+    task.id = JSON.parse(result._bodyInit).id
+    data = this.state.data
+      .filter(i => i.id != task.id)
+      .concat([task])
+
+      this.setState({
       data,
-      local_data,
       editTask: null
-    }, this.saveData)
+    })
   }
 
   async deleteTask(task) {
-    const data = this.state.data
-    const local_data = this.state.local_data
-    
     try {
       const result = await this.deleteGoogleEvent(task)
+      console.log(result)      
     }
     catch(e) { console.error(e) }
 
-    delete data[task.id]
-    delete local_data[task.id]
+    const data = this.state.data
+      .filter(i => i.id != JSON.parse(response._bodyInit).id)
     this.setState({
       data,
-      local_data,
       editTask: null
-    }, this.saveData)
-  }
-
-  purgeTasks() {
-    AsyncStorage.removeItem('data')
-    .then(function(result) {
-      console.log('Purged', result)
-    })
-    .then(this.fetchData.bind(this))
-    .catch(function(error) {
-      console.error(error)
     })
   }
 
@@ -214,7 +177,8 @@ export default class App extends Component {
     return (
       <ScrollView>
         <LoginView
-          setUser={this.setUser.bind(this)} />
+          setUser={this.setUser.bind(this)}
+          logged_in={!!this.state.user} />
         <NewTaskInline
           createTask={this.createTask.bind(this)}
           cancelEdit={this.cancelEdit.bind(this)}

@@ -21,13 +21,15 @@ generate_def_state = () => {
   return {
     summary: '',
     start: {
-      dateTime: next.toString()
+      dateTime: next.toISOString()
     },
     end: {
-      dateTime: later.toString()
+      dateTime: later.toISOString()
     },
-    ionit: {
-      parent: null
+    extendedProperties: {
+      shared: {
+        parent: null
+      }
     }
   }
 }
@@ -46,44 +48,53 @@ export default class NewTaskInline extends Component {
       this.setState(newProps.task);
   }
 
+  clearState(task) {
+    const clear = Object.assign({}, this.state)
+    for (var prop in clear) clear[prop] = undefined
+    Object.assign(clear, task || generate_def_state())
+    this.setState(clear)
+  }
+
   addSubTask() {
     let newTask = generate_def_state()
-    newTask.ionit.parent = this.state.id
-    this.setState(newTask)
+    newTask.extendedProperties.shared.parent = this.state.id
+    this.clearState(newTask)
   }
 
   submit() {
     this.props.createTask(this.state)
-    this.setState(generate_def_state())
+    this.clearState()
   }
 
   delete() {
     this.props.deleteTask(this.state)
-    this.setState(generate_def_state())
+    this.clearState()
   }
 
   cancel() {
     this.props.cancelEdit()
-    this.setState(generate_def_state())
+    this.clearState()
   }
 
   updateStart(start) {
     const date = new Date(start)
     this.setState({
-      start: { dateTime: new Date(date).toString() }, 
-      end: { dateTime: new Date(date.getTime() + hour).toString() }
+      start: { dateTime: new Date(date).toISOString() }, 
+      end: { dateTime: new Date(date.getTime() + hour).toISOString() }
     })
   }
 
   updateEnd(end) {
-    this.setState({ end: { dateTime: new Date(end).toString() }})
+    this.setState({ end: { dateTime: new Date(end).toISOString() }})
   }
 
   updateParent(parent, itemIndex) {
-    this.setState({ ionit: { parent }})
+    this.setState({ extendedProperties: { shared: { parent }}})
   }
 
   render() {
+
+    let data = this.props.data
 
     let parent_picker = {
       data: [{
@@ -93,12 +104,12 @@ export default class NewTaskInline extends Component {
       enabled: false
     }
 
-    if (this.props.data && this.props.data.length > 0) {
+    if (data && data.length > 0) {
       parent_picker.enabled = true;
       parent_picker.data = [{
         label: 'Select Parent',
         id: null
-      }].concat(this.props.data);
+      }].concat(data.filter(d => d.id != this.state.id));
     }
 
     parent_picker.items = parent_picker.data.map(item =>
@@ -128,7 +139,7 @@ export default class NewTaskInline extends Component {
           onDateChange={this.updateEnd.bind(this)}
           />
         <Picker 
-          selectedValue={this.state.ionit ? this.state.ionit.parent : false}
+          selectedValue={this.state.extendedProperties.shared.parent}
           onValueChange={this.updateParent.bind(this)}
           enabled={parent_picker.enabled}
           >{parent_picker.items}</Picker>
