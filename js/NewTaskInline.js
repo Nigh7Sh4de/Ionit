@@ -19,10 +19,18 @@ generate_def_state = () => {
   const next = new Date(Math.ceil(Date.now() / hour ) * hour)
   const later = new Date(next.getTime() + hour)
   return {
-    name: '',
-    start: next.toString(),
-    end: later.toString(),
-    parent: null
+    summary: '',
+    start: {
+      dateTime: next.toISOString()
+    },
+    end: {
+      dateTime: later.toISOString()
+    },
+    extendedProperties: {
+      shared: {
+        parent: null
+      }
+    }
   }
 }
 
@@ -35,71 +43,80 @@ export default class NewTaskInline extends Component {
   componentWillReceiveProps(newProps) {
     if (newProps.task && (
         !this.props.task ||
-        newProps.task.name != this.props.task.name
+        newProps.task.id != this.props.task.id
     ))
       this.setState(newProps.task);
   }
 
+  clearState(task) {
+    const clear = Object.assign({}, this.state)
+    for (var prop in clear) clear[prop] = undefined
+    Object.assign(clear, task || generate_def_state())
+    this.setState(clear)
+  }
+
   addSubTask() {
     let newTask = generate_def_state()
-    newTask.parent = this.state.name
-    this.setState(newTask)
+    newTask.extendedProperties.shared.parent = this.state.id
+    this.clearState(newTask)
   }
 
   submit() {
     this.props.createTask(this.state)
-    this.setState(generate_def_state())
+    this.clearState()
   }
 
   delete() {
     this.props.deleteTask(this.state)
-    this.setState(generate_def_state())
+    this.clearState()
   }
 
   cancel() {
     this.props.cancelEdit()
-    this.setState(generate_def_state())
+    this.clearState()
   }
 
   updateStart(start) {
     const date = new Date(start)
     this.setState({
-      start: new Date(date).toString(),
-      end: new Date(date.getTime() + hour).toString()
+      start: { dateTime: new Date(date).toISOString() }, 
+      end: { dateTime: new Date(date.getTime() + hour).toISOString() }
     })
   }
 
   updateEnd(end) {
-    this.setState({ end: new Date(end).toString() })
+    this.setState({ end: { dateTime: new Date(end).toISOString() }})
   }
 
   updateParent(parent, itemIndex) {
-    this.setState({ parent })
+    this.setState({ extendedProperties: { shared: { parent }}})
   }
 
   render() {
 
+    let data = this.props.data
+
     let parent_picker = {
       data: [{
         label: 'No items to select as parent.',
-        name: null
+        id: null
       }],
       enabled: false
     }
 
-    if (this.props.data && this.props.data.length > 0) {
+    if (data && data.length > 0) {
       parent_picker.enabled = true;
       parent_picker.data = [{
         label: 'Select Parent',
-        name: null
-      }].concat(this.props.data);
+        id: null
+      }].concat(data.filter(d => d.id != this.state.id));
     }
 
     parent_picker.items = parent_picker.data.map(item =>
       <Picker.Item
-        key={item.name}
-        label={item.label || item.name}
-        value={item.name} />
+        key={item.id}
+        label={item.label || item.summary}
+        value={item.id} />
     )
 
     return (
@@ -107,22 +124,22 @@ export default class NewTaskInline extends Component {
         <Text>Name: </Text>
         <TextInput 
           placeholder="New task"
-          onChangeText={name=>this.setState({ name })} 
-          value={this.state.name} />
+          onChangeText={summary=>this.setState({ summary })} 
+          value={this.state.summary} />
         <Text>Start: </Text>
         <DatePicker
           mode="datetime"
-          date={new Date(this.state.start)}
+          date={new Date(this.state.start.dateTime)}
           onDateChange={this.updateStart.bind(this)}
           />
         <Text>End: </Text>
         <DatePicker
           mode="datetime"
-          date={new Date(this.state.end)}
+          date={new Date(this.state.end.dateTime)}
           onDateChange={this.updateEnd.bind(this)}
           />
         <Picker 
-          selectedValue={this.state.parent}
+          selectedValue={this.state.extendedProperties.shared.parent}
           onValueChange={this.updateParent.bind(this)}
           enabled={parent_picker.enabled}
           >{parent_picker.items}</Picker>
@@ -132,12 +149,12 @@ export default class NewTaskInline extends Component {
         <Button 
             onPress={this.addSubTask.bind(this)}
             color="#2b5"
-            disabled={!this.state.name}
+            disabled={!this.state.id}
             title="Add Sub-Task" />
         <Button 
             onPress={this.delete.bind(this)}
             color="red"
-            disabled={!this.state.name}
+            disabled={!this.state.id}
             title="Delete" />
         <Button 
             onPress={this.cancel.bind(this)}
