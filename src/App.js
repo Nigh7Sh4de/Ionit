@@ -6,8 +6,10 @@ import {
   View,
   Button
 } from 'react-native'
-
+import { connect } from 'react-redux'
 import GoogleSignIn from 'react-native-google-sign-in';
+
+import { getAll } from './actions/EventActions'
 
 import LoginView from './LoginView'
 import DataView from './DataView'
@@ -15,7 +17,7 @@ import NewTaskInline from './NewTaskInline'
 
 import Styles from './Styles'
 
-export default class App extends Component {
+class App extends Component {
   constructor(props) {
     super(props)
     this.state = { 
@@ -27,7 +29,6 @@ export default class App extends Component {
   }
   
   async componentWillMount() {
-    // debugger
     GoogleSignIn.configure({
       // clientID: '516748484660-l7rjdnvd8oafp38e0dut9r3l8ocgcser.apps.googleusercontent.com', //Laptop
       clientID: '516748484660-e1713ne24akk8pk8qd5nhpc1nc25ibl0.apps.googleusercontent.com', //Desktop
@@ -50,27 +51,29 @@ export default class App extends Component {
     console.log(user)
     this.setState({
       user
-    }, user ? this.loadData : ()=>{})
+    }, (() => {
+      if (user) this.props.loadData(user)
+    }).bind(this))
   }
 
-  async fetchGoogleData() {
-    if (!this.state.user)
-      return console.error('No user authenticated')
-    const headers = {
-      Authorization: 'Bearer ' + this.state.user.accessToken
-    }
+  // async fetchGoogleData() {
+  //   if (!this.state.user)
+  //     return console.error('No user authenticated')
+  //   const headers = {
+  //     Authorization: 'Bearer ' + this.state.user.accessToken
+  //   }
     
-    let google_url = 'https://www.googleapis.com/calendar/v3/calendars/primary/events?'
-    google_url += 'timeMin=' + new Date('2017/11/01').toISOString()
-    try {
-      const response = await fetch(google_url, { headers })
-      const list = JSON.parse(response._bodyInit).items.filter(item => (
-        item.status != 'cancelled'
-      ))
-      return list
-    }
-    catch(e) { console.error(e) }
-  }
+  //   let google_url = 'https://www.googleapis.com/calendar/v3/calendars/primary/events?'
+  //   google_url += 'timeMin=' + new Date('2017/11/01').toISOString()
+  //   try {
+  //     const response = await fetch(google_url, { headers })
+  //     const list = JSON.parse(response._bodyInit).items.filter(item => (
+  //       item.status != 'cancelled'
+  //     ))
+  //     return list
+  //   }
+  //   catch(e) { console.error(e) }
+  // }
 
   async createGoogleEvent(task) {
     try {
@@ -118,13 +121,13 @@ export default class App extends Component {
     catch(e) { console.error(e) }
   }
 
-  async loadData() {
-    const google_data = await this.fetchGoogleData()
+  // async loadData() {
+  //   const google_data = await this.fetchGoogleData()
 
-    this.setState({
-      data: google_data
-    })
-  }
+  //   this.setState({
+  //     data: google_data
+  //   })
+  // }
 
   editTask(editTask) {
     this.setState({ editTask })
@@ -184,13 +187,25 @@ export default class App extends Component {
           cancelEdit={this.cancelEdit.bind(this)}
           deleteTask={this.deleteTask.bind(this)} 
           task={this.state.editTask}
-          data={this.state.data} 
+          data={this.props.data} 
           />
         <DataView 
           editTask={this.editTask.bind(this)}
-          data={this.state.data}
+          data={this.props.data}
           />
       </ScrollView>
     )
   }
 }
+
+export default connect(
+  ({ EventReducer }) => {
+    console.log(EventReducer.data)
+    return {
+      data: EventReducer.data
+    }
+  },
+  (dispatch) => ({
+    loadData: (user) => dispatch(getAll(user))
+  })
+)(App)
