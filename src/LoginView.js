@@ -1,4 +1,10 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
+
+import {
+  signIn,
+  signOut
+} from './actions/UserActions'
 
 import {
     View,
@@ -6,46 +12,33 @@ import {
     Button
 } from 'react-native'
 
-import GoogleSignIn from 'react-native-google-sign-in';
 
-export default class LoginView extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      user: null
-    }
-  }
-  
-  async logIn() {
-    try {
-      const user = await GoogleSignIn.signInPromise()
-      this.props.setUser(user)
-    }
-    catch (e) {
-      console.error(e)
-    }
-  }
-
-  async logOut() {
-    GoogleSignIn.signOutPromise()
-    this.props.setUser(null)
-  }
-      
+class LoginView extends Component {
   render() {
     return (
       <View>
         <Button
-          onPress={this.logIn.bind(this)}
           title="Login"
-          disabled={this.props.logged_in}
+          onPress={this.props.signIn}
+          disabled={!!this.props.user}
           />
         <Button
-          onPress={this.logOut.bind(this)}
           title="Logout"
+          onPress={this.props.signOut}
+          disabled={!this.props.user}
           color="red"
-          disabled={!this.props.logged_in}
           />
       </View>
     )
   }
 }
+
+export default connect(
+  ({ UserReducer }) => ({
+    user: UserReducer.user
+  }),
+  (dispatch) => ({
+    signIn: () => dispatch(signIn()),
+    signOut: () => dispatch(signOut())
+  })
+)(LoginView)

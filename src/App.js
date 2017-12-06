@@ -15,6 +15,9 @@ import {
   updateEvent,
   deleteEvent
 } from './actions/EventActions'
+import {
+  signInSilently,
+} from './actions/UserActions'
 
 import LoginView from './LoginView'
 import DataView from './DataView'
@@ -33,34 +36,11 @@ class App extends Component {
     }
   }
   
-  async componentWillMount() {
-    GoogleSignIn.configure({
-      // clientID: '516748484660-l7rjdnvd8oafp38e0dut9r3l8ocgcser.apps.googleusercontent.com', //Laptop
-      clientID: '516748484660-e1713ne24akk8pk8qd5nhpc1nc25ibl0.apps.googleusercontent.com', //Desktop
-      scopes: [
-        'https://www.googleapis.com/auth/calendar'
-      ]
-    });
-
-    try {
-      const user = await GoogleSignIn.signInSilentlyPromise()
-      if (user) this.setUser(user)
-    }
-    catch(e) {
-      if (e.code !== 4) console.error(e)
-    }
-
+  componentWillMount() {
+    this.props.signInSilently()
   }
 
-  setUser(user) {
-    console.log(user)
-    this.setState({
-      user
-    }, (() => {
-      if (user) this.props.loadData(user)
-    }).bind(this))
-  }
-
+  //TODO: move to NewTaskInline
   editTask(editTask) {
     this.setState({ editTask })
   }
@@ -71,23 +51,22 @@ class App extends Component {
 
   createTask(task) {
       if (this.state.editTask && this.state.editTask.id == task.id) {
-        this.props.updateEvent(this.state.user, task)
+        this.props.updateEvent(this.props.user, task)
       }
       else {
-        this.props.createEvent(this.state.user, task)
+        this.props.createEvent(this.props.user, task)
       }
   }
 
   deleteTask(task) {
-    this.props.deleteTask(this.state.user, task)
+    this.props.deleteTask(this.props.user, task)
   }
+  //End TODO
 
   render() {
     return (
       <ScrollView>
-        <LoginView
-          setUser={this.setUser.bind(this)}
-          logged_in={!!this.state.user} />
+        <LoginView />
         <NewTaskInline
           createTask={this.createTask.bind(this)}
           cancelEdit={this.cancelEdit.bind(this)}
@@ -105,13 +84,15 @@ class App extends Component {
 }
 
 export default connect(
-  ({ EventReducer }) => {
+  ({ EventReducer, UserReducer }) => {
     // console.log(EventReducer.data)
     return {
+      user: UserReducer.user,
       data: EventReducer.data
     }
   },
   (dispatch) => ({
+    signInSilently: () => dispatch(signInSilently()),
     loadData: (user) => dispatch(getAll(user)),
     createEvent: (user, event) => dispatch(createEvent(user, event)),
     updateEvent: (user, event) => dispatch(updateEvent(user, event)),
