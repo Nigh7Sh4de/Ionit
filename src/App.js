@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, createElement } from 'react'
 import {
   Platform,
   ScrollView,
@@ -9,7 +9,12 @@ import {
 import { connect } from 'react-redux'
 import GoogleSignIn from 'react-native-google-sign-in';
 
-import { getAll } from './actions/EventActions'
+import { 
+  getAll,
+  createEvent,
+  updateEvent,
+  deleteEvent
+} from './actions/EventActions'
 
 import LoginView from './LoginView'
 import DataView from './DataView'
@@ -56,79 +61,6 @@ class App extends Component {
     }).bind(this))
   }
 
-  // async fetchGoogleData() {
-  //   if (!this.state.user)
-  //     return console.error('No user authenticated')
-  //   const headers = {
-  //     Authorization: 'Bearer ' + this.state.user.accessToken
-  //   }
-    
-  //   let google_url = 'https://www.googleapis.com/calendar/v3/calendars/primary/events?'
-  //   google_url += 'timeMin=' + new Date('2017/11/01').toISOString()
-  //   try {
-  //     const response = await fetch(google_url, { headers })
-  //     const list = JSON.parse(response._bodyInit).items.filter(item => (
-  //       item.status != 'cancelled'
-  //     ))
-  //     return list
-  //   }
-  //   catch(e) { console.error(e) }
-  // }
-
-  async createGoogleEvent(task) {
-    try {
-      const result = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
-        method: 'POST',
-        body: JSON.stringify(task),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + this.state.user.accessToken
-        }
-      })
-      if (!result.ok) throw JSON.parse(result._bodyInit).error
-      return result
-    }
-    catch(e) { console.error(e) }
-  }
-
-  async updateGoogleEvent(task) {
-    try {
-      const result = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events/' + task.id, {
-        method: 'PUT',
-        body: JSON.stringify(task),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + this.state.user.accessToken
-        }
-      })
-      if (!result.ok) throw JSON.parse(result._bodyInit).error
-      return result
-    }
-    catch(e) { console.error(e) }
-  }
-  
-  async deleteGoogleEvent(task) {
-    try {
-      const result = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events/' + task.id, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': 'Bearer ' + this.state.user.accessToken
-        }
-      })
-      if (!result.ok) throw JSON.parse(result._bodyInit).error
-      return result
-    }
-    catch(e) { console.error(e) }
-  }
-
-  // async loadData() {
-  //   const google_data = await this.fetchGoogleData()
-
-  //   this.setState({
-  //     data: google_data
-  //   })
-  // }
-
   editTask(editTask) {
     this.setState({ editTask })
   }
@@ -137,43 +69,17 @@ class App extends Component {
     this.setState({ editTask: null })
   }
 
-  async createTask(task) {
-    let result;
-    try {
+  createTask(task) {
       if (this.state.editTask && this.state.editTask.id == task.id) {
-        result = await this.updateGoogleEvent(task)
+        this.props.updateEvent(this.state.user, task)
       }
       else {
-        result = await this.createGoogleEvent(task)
+        this.props.createEvent(this.state.user, task)
       }
-      console.log(result)
-    }
-    catch(e) { console.error(e) }
-
-    task.id = JSON.parse(result._bodyInit).id
-    data = this.state.data
-      .filter(i => i.id != task.id)
-      .concat([task])
-
-      this.setState({
-      data,
-      editTask: null
-    })
   }
 
-  async deleteTask(task) {
-    try {
-      const result = await this.deleteGoogleEvent(task)
-      console.log(result)      
-    }
-    catch(e) { console.error(e) }
-
-    const data = this.state.data
-      .filter(i => i.id != JSON.parse(response._bodyInit).id)
-    this.setState({
-      data,
-      editTask: null
-    })
+  deleteTask(task) {
+    this.props.deleteTask(this.state.user, task)
   }
 
   render() {
@@ -200,12 +106,15 @@ class App extends Component {
 
 export default connect(
   ({ EventReducer }) => {
-    console.log(EventReducer.data)
+    // console.log(EventReducer.data)
     return {
       data: EventReducer.data
     }
   },
   (dispatch) => ({
-    loadData: (user) => dispatch(getAll(user))
+    loadData: (user) => dispatch(getAll(user)),
+    createEvent: (user, event) => dispatch(createEvent(user, event)),
+    updateEvent: (user, event) => dispatch(updateEvent(user, event)),
+    deleteEvent: (user, event) => dispatch(deleteEvent(user, event))
   })
 )(App)

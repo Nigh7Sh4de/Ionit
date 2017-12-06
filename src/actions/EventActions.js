@@ -2,18 +2,126 @@ import * as Actions from './'
 
 const BASE_URL = 'https://www.googleapis.com/calendar/v3/calendars/primary/events'
 
+const stringifyAndKillNulls = object =>
+  JSON.stringify(object, (key, value) => 
+    value == null ? undefined : value
+  )
+
+export function createEvent(user, event) {
+  return async (dispatch) => {
+    dispatch(actionInProgress())
+    try {
+      const response = await fetch(BASE_URL, {
+        method: 'POST',
+        body: stringifyAndKillNulls(event),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + user.accessToken
+        }
+      })
+      if (!response.ok) throw JSON.parse(response._bodyInit).error
+      const result = JSON.parse(response._bodyInit)
+      console.log('eventCreated', result)
+      dispatch(eventCreated(result))
+      dispatch(actionSuccess())
+    }
+    catch(e) { dispatch(actionError(e)) }
+  }
+}
+
+export function updateEvent(user, event) {
+  return async (dispatch) => {
+    dispatch(actionInProgress())
+    try {
+      const response = await fetch(BASE_URL + '/' + event.id, {
+        method: 'PUT',
+        body: stringifyAndKillNulls(event),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + user.accessToken
+        }
+      })
+      if (!response.ok) throw JSON.parse(response._bodyInit).error
+      const result = JSON.parse(response._bodyInit)
+      console.log('eventUpdated', result)
+      dispatch(eventUpdated(result))
+      dispatch(actionSuccess())
+    }
+    catch(e) { dispatch(actionError(e)) }
+  }
+}
+
+export function deleteEvent(user, event) {
+  return async (dispatch) => {
+    dispatch(actionInProgress())
+    try {
+      const response = await fetch(BASE_URL + '/' + event.id, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Bearer ' + user.accessToken
+        }
+      })
+      if (!response.ok) throw JSON.parse(response._bodyInit).error
+      const result = JSON.parse(response._bodyInit)
+      console.log('eventDeleted', result)
+      dispatch(eventDeleted(result))
+      dispatch(actionSuccess())
+    }
+    catch(e) { dispatch(actionError(e)) }
+  }
+}
+
+export function eventCreated(event) {
+  return {
+    type: Actions.EVENT_CREATED,
+    event
+  }
+}
+export function eventUpdated(event) {
+  return {
+    type: Actions.EVENT_UPDATED,
+    event
+  }
+}
+export function eventDeleted(event) {
+  return {
+    type: Actions.EVENT_DELETED,
+    event
+  }
+}
+
+export function actionInProgress() {
+  return {
+    type: Actions.ACTION_LOADING
+  }
+}
+
+export function actionSuccess() {
+  return {
+    type: Actions.ACTION_SUCCESS
+  }
+}
+
+export function actionError(error) {
+  console.error(error)
+  return {
+    type: Actions.ACTION_ERROR,
+    error
+  }
+}
+
 export function getAll(user) {
   return async (dispatch) => {
     dispatch(getAllInProgress())
-
-    const headers = {
-      Authorization: 'Bearer ' + user.accessToken
-    }
+ 
     const min = new Date('2017/11/01').toISOString()
-    
     try {
-      const response = await fetch(BASE_URL + '?timeMin=' + min, { headers })
-      if (response.status != '200')
+      const response = await fetch(BASE_URL + '?timeMin=' + min, { 
+        headers: {
+          Authorization: 'Bearer ' + user.accessToken
+        }
+      })
+      if (!response.ok)
         throw JSON.parse(response._bodyInit).error
         
       const list = JSON.parse(response._bodyInit).items.filter(item => (
@@ -39,6 +147,7 @@ export function getAllSuccess(data) {
 }
 
 export function getAllError(error) {
+  console.error(error)
   return {
     type: Actions.GET_ALL_ERROR,
     error
