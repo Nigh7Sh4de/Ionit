@@ -1,4 +1,9 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux';
+
+import {
+  editEvent
+} from './actions/EventActions'
 
 import {
   Text,
@@ -11,7 +16,7 @@ import FilterView from './FilterView'
 
 import Styles from './Styles'
 
-export default class DataView extends Component {
+class DataView extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -49,7 +54,7 @@ export default class DataView extends Component {
     return (
       <View>
         <Button
-          onPress={() => this.props.editTask(item)}
+          onPress={() => this.props.editEvent(item)}
           title="Edit"
           />
         <Text>
@@ -78,3 +83,12 @@ export default class DataView extends Component {
     )
   }
 }
+
+export default connect(
+  ({ EventReducer }) => ({
+    data: EventReducer.data
+  }),
+  (dispatch) => ({
+    editEvent: (event) => dispatch(editEvent(event))
+  })
+)(DataView)
