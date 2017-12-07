@@ -2,11 +2,12 @@ import * as Actions from '../actions'
 
 const initialState = {
   data: [],
-  dataLoaded: false,
-  dataLoading: false,
-  dataError: null,
-  loading: false,
-  error: null
+  // dataLoaded: false,
+  // dataLoading: false,
+  // dataError: null,
+  event: null,
+  // loading: false,
+  // error: null
 }
 
 export default (state = initialState, action) => {
@@ -41,12 +42,25 @@ export default (state = initialState, action) => {
       return {
         ...state,
         loading: false,
+        event: null,
         error: action.error
+      }
+    case Actions.ACTION_CANCELLED:
+      return {
+        ...state,
+        loading: false,
+        event: null
       }
     case Actions.ACTION_SUCCESS: 
       return {
         ...state,
-        loading: false
+        loading: false,
+        event: null
+      }
+      case Actions.EDIT_EVENT:
+      return {
+        ...state,
+        event: action.event
       }
     case Actions.EVENT_CREATED:
     case Actions.EVENT_UPDATED:

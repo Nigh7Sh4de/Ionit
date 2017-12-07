@@ -7,16 +7,17 @@ const stringifyAndKillNulls = object =>
     value == null ? undefined : value
   )
 
-export function createEvent(user, event) {
-  return async (dispatch) => {
+export function createEvent(event, user) {
+  return async (dispatch, getState) => {
     dispatch(actionInProgress())
     try {
+      const accessToken = (user || getState().UserReducer.user).accessToken
       const response = await fetch(BASE_URL, {
         method: 'POST',
         body: stringifyAndKillNulls(event),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + user.accessToken
+          'Authorization': 'Bearer ' + accessToken
         }
       })
       if (!response.ok) throw JSON.parse(response._bodyInit).error
@@ -28,17 +29,18 @@ export function createEvent(user, event) {
     catch(e) { dispatch(actionError(e)) }
   }
 }
-
-export function updateEvent(user, event) {
-  return async (dispatch) => {
+export function updateEvent(event, user) {
+  return async (dispatch, getState) => {
     dispatch(actionInProgress())
     try {
+      debugger
+      const accessToken = (user || getState().UserReducer.user).accessToken
       const response = await fetch(BASE_URL + '/' + event.id, {
         method: 'PUT',
         body: stringifyAndKillNulls(event),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + user.accessToken
+          'Authorization': 'Bearer ' + accessToken
         }
       })
       if (!response.ok) throw JSON.parse(response._bodyInit).error
@@ -50,15 +52,15 @@ export function updateEvent(user, event) {
     catch(e) { dispatch(actionError(e)) }
   }
 }
-
-export function deleteEvent(user, event) {
-  return async (dispatch) => {
+export function deleteEvent(event, user) {
+  return async (dispatch, getState) => {
     dispatch(actionInProgress())
     try {
+      const accessToken = (user || getState().UserReducer.user).accessToken 
       const response = await fetch(BASE_URL + '/' + event.id, {
         method: 'DELETE',
         headers: {
-          'Authorization': 'Bearer ' + user.accessToken
+          'Authorization': 'Bearer ' + accessToken
         }
       })
       if (!response.ok) throw JSON.parse(response._bodyInit).error
@@ -68,6 +70,12 @@ export function deleteEvent(user, event) {
       dispatch(actionSuccess())
     }
     catch(e) { dispatch(actionError(e)) }
+  }
+}
+export function editEvent(event) {
+  return {
+    type: Actions.EDIT_EVENT,
+    event
   }
 }
 
@@ -90,18 +98,21 @@ export function eventDeleted(event) {
   }
 }
 
+export function actionCancelled() {
+  return {
+    type: Actions.ACTION_CANCELLED
+  }
+}
 export function actionInProgress() {
   return {
     type: Actions.ACTION_LOADING
   }
 }
-
 export function actionSuccess() {
   return {
     type: Actions.ACTION_SUCCESS
   }
 }
-
 export function actionError(error) {
   console.error(error)
   return {
@@ -111,14 +122,15 @@ export function actionError(error) {
 }
 
 export function getAll(user) {
-  return async (dispatch) => {
+  return async (dispatch, getState) => {
     dispatch(getAllInProgress())
- 
+
+    const accessToken = (user || getState().UserReducer.user).accessToken
     const min = new Date('2017/11/01').toISOString()
     try {
       const response = await fetch(BASE_URL + '?timeMin=' + min, { 
         headers: {
-          Authorization: 'Bearer ' + user.accessToken
+          Authorization: 'Bearer ' + accessToken
         }
       })
       if (!response.ok)
@@ -132,20 +144,17 @@ export function getAll(user) {
     catch(e) { getAllError(e) }
   }
 }
-
 export function getAllInProgress() {
   return {
     type: Actions.GET_ALL_LOADING
   }
 }
-
 export function getAllSuccess(data) {
   return {
     type: Actions.GET_ALL_SUCCESS,
     data
   }
 }
-
 export function getAllError(error) {
   console.error(error)
   return {
