@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import DatePicker from 'react-native-datepicker'
 
 import {
   View,
@@ -9,7 +11,12 @@ import {
   Picker
 } from 'react-native'
 
-import DatePicker from 'react-native-datepicker'
+import {
+  createEvent,
+  updateEvent,
+  deleteEvent,
+  actionCancelled
+} from './actions/EventActions'
 
 import Styles from './Styles'
 
@@ -34,18 +41,18 @@ generate_def_state = () => {
   }
 }
 
-export default class NewTaskInline extends Component {
+class NewTaskView extends Component {
   constructor(props) {
     super(props)
     this.state = generate_def_state()
   }
 
   componentWillReceiveProps(newProps) {
-    if (newProps.task && (
-        !this.props.task ||
-        newProps.task.id != this.props.task.id
+    if (newProps.event && (
+        !this.props.event ||
+        newProps.event.id != this.props.event.id
     ))
-      this.setState(newProps.task);
+      this.setState(newProps.event);
   }
 
   clearState(task) {
@@ -62,12 +69,15 @@ export default class NewTaskInline extends Component {
   }
 
   submit() {
-    this.props.createTask(this.state)
+    if (this.props.event && this.props.event.id == this.state.id)
+      this.props.updateEvent()
+    else
+      this.props.createEvent(this.state)
     this.clearState()
   }
 
   delete() {
-    this.props.deleteTask(this.state)
+    this.props.deleteEvent(this.state)
     this.clearState()
   }
 
@@ -94,7 +104,7 @@ export default class NewTaskInline extends Component {
 
   render() {
 
-    let data = this.props.data
+    let data = this.props.data.filter(item => !!item.summary)
 
     let parent_picker = {
       data: [{
@@ -144,23 +154,37 @@ export default class NewTaskInline extends Component {
           enabled={parent_picker.enabled}
           >{parent_picker.items}</Picker>
         <Button 
-            onPress={this.submit.bind(this)}
-            title="Done" />
+          title="Done"
+          onPress={this.submit.bind(this)}
+          disabled={!this.state.summary}
+          />
         <Button 
-            onPress={this.addSubTask.bind(this)}
-            color="#2b5"
-            disabled={!this.state.id}
-            title="Add Sub-Task" />
+          title="Add Sub-Task"
+          onPress={this.addSubTask.bind(this)}
+          color="#2b5"
+          disabled={!this.state.id} />
         <Button 
-            onPress={this.delete.bind(this)}
-            color="red"
-            disabled={!this.state.id}
-            title="Delete" />
+          title="Delete"
+          onPress={this.delete.bind(this)}
+          color="red"
+          disabled={!this.state.id} />
         <Button 
-            onPress={this.cancel.bind(this)}
-            color="#9a9a9a"
-            title="Cancel" />
+          title="Cancel"
+          onPress={this.cancel.bind(this)}
+          color="#9a9a9a" />
       </View>
     )
   }
 }
+
+export default connect(
+  ({ EventReducer }) => ({
+    data: EventReducer.data,
+    event: EventReducer.event
+  }), dispatch => ({
+    createEvent: (event) => dispatch(createEvent(event)),
+    updateEvent: (event) => dispatch(updateEvent(user)),
+    deleteEvent: (event) => dispatch(deleteEvent(event)),
+    cancelEdit: (event) => dispatch(actionCancelled(event))
+  })
+)(NewTaskView)
