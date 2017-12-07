@@ -33,7 +33,6 @@ export function updateEvent(event, user) {
   return async (dispatch, getState) => {
     dispatch(actionInProgress())
     try {
-      debugger
       const accessToken = (user || getState().UserReducer.user).accessToken
       const response = await fetch(BASE_URL + '/' + event.id, {
         method: 'PUT',

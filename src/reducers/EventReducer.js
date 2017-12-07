@@ -42,7 +42,6 @@ export default (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        event: null,
         error: action.error
       }
     case Actions.ACTION_CANCELLED:
