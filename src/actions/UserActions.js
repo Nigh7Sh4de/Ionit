@@ -1,4 +1,5 @@
 import * as Actions from './'
+import { getAll } from './EventActions'
 import GoogleSignIn from 'react-native-google-sign-in';
 
 GoogleSignIn.configure({
@@ -31,6 +32,13 @@ export function signInSilently() {
     }
 }
 
+export function signInSuccess(user) {
+    return dispatch => {
+        dispatch(signInUpdated(user))
+        dispatch(getAll(user))
+    }
+}
+
 export function signOut() {
     GoogleSignIn.signOut()
     return {
@@ -44,7 +52,7 @@ export function signInLoading() {
     }
 }
 
-export function signInSuccess(user) {
+export function signInUpdated(user) {
     return {
         type: Actions.USER_LOGIN_SUCCESS,
         user
