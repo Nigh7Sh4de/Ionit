@@ -1,9 +1,13 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
+import { Actions } from 'react-native-router-flux';
 
 import {
   editEvent
 } from './actions/EventActions'
+import {
+  signOut
+} from './actions/UserActions'
 
 import {
   Text,
@@ -54,7 +58,7 @@ class DataView extends Component {
     return (
       <View>
         <Button
-          onPress={() => this.props.editEvent(item)}
+          onPress={() => this.props.editEvent(item.id)}
           title="Edit"
           />
         <Text>
@@ -67,6 +71,16 @@ class DataView extends Component {
   render() {
     return (
       <View>
+        <Button
+          title='Sign Out'
+          onPress={this.props.signOut}
+          color='red'
+          />
+        <Button
+          title='Create New Event'
+          onPress={this.props.createEvent}
+          color='green'
+          />
         <FilterView
           updateFilter={this.updateFilter.bind(this)}
           />
@@ -89,6 +103,9 @@ export default connect(
     data: EventReducer.data
   }),
   (dispatch) => ({
-    editEvent: (event) => dispatch(editEvent(event))
+    editEvent: id => Actions.editTask({ id }),
+    createEvent: Actions.newTask,
+    signOut: () => dispatch(signOut())
+
   })
 )(DataView)

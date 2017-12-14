@@ -25,6 +25,7 @@ export default (state = initialState, action) => {
       return {
         ...state,
         user: null,
+        error: null,
         loading: true
       }
     case Actions.USER_LOGOUT:

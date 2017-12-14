@@ -71,12 +71,6 @@ export function deleteEvent(event, user) {
     catch(e) { dispatch(actionError(e)) }
   }
 }
-export function editEvent(event) {
-  return {
-    type: Actions.EDIT_EVENT,
-    event
-  }
-}
 
 export function eventCreated(event) {
   return {
@@ -97,11 +91,6 @@ export function eventDeleted(event) {
   }
 }
 
-export function actionCancelled() {
-  return {
-    type: Actions.ACTION_CANCELLED
-  }
-}
 export function actionInProgress() {
   return {
     type: Actions.ACTION_LOADING

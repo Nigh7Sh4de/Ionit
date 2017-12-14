@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import DatePicker from 'react-native-datepicker'
+import { Actions } from 'react-native-router-flux'
 
 import {
   View,
@@ -14,8 +15,7 @@ import {
 import {
   createEvent,
   updateEvent,
-  deleteEvent,
-  actionCancelled
+  deleteEvent
 } from './actions/EventActions'
 
 import Styles from './Styles'
@@ -47,25 +47,19 @@ class NewTaskView extends Component {
     this.state = generate_def_state()
   }
 
-  componentWillReceiveProps(newProps) {
-    if (newProps.event && (
-        !this.props.event ||
-        newProps.event.id != this.props.event.id
-    ))
-      this.setState(newProps.event);
-  }
-
-  clearState(task) {
-    const clear = Object.assign({}, this.state)
-    for (var prop in clear) clear[prop] = undefined
-    Object.assign(clear, task || generate_def_state())
-    this.setState(clear)
+  componentWillMount() {
+    const eventId = this.props.navigation.state.params.id
+    const routeName = this.props.navigation.state.params.routeName
+    if (eventId) {
+      if (routeName == 'editTask')
+        this.setState(this.props.data.find(i => i.id == eventId))
+      else if (routeName == 'newSubTask')
+        this.updateParent(eventId)
+    }
   }
 
   addSubTask() {
-    let newTask = generate_def_state()
-    newTask.extendedProperties.shared.parent = this.state.id
-    this.clearState(newTask)
+    Actions.newSubTask({ id: this.state.id })
   }
 
   submit() {
@@ -73,17 +67,16 @@ class NewTaskView extends Component {
       this.props.updateEvent()
     else
       this.props.createEvent(this.state)
-    this.clearState()
+    Actions.data()
   }
 
   delete() {
     this.props.deleteEvent(this.state)
-    this.clearState()
+    Actions.data()
   }
 
   cancel() {
-    this.props.cancelEdit()
-    this.clearState()
+    Actions.data()
   }
 
   updateStart(start) {
@@ -98,7 +91,7 @@ class NewTaskView extends Component {
     this.setState({ end: { dateTime: new Date(end).toISOString() }})
   }
 
-  updateParent(parent, itemIndex) {
+  updateParent(parent) {
     this.setState({ extendedProperties: { shared: { parent }}})
   }
 
@@ -180,11 +173,9 @@ class NewTaskView extends Component {
 export default connect(
   ({ EventReducer }) => ({
     data: EventReducer.data,
-    event: EventReducer.event
   }), dispatch => ({
     createEvent: (event) => dispatch(createEvent(event)),
-    updateEvent: (event) => dispatch(updateEvent(user)),
-    deleteEvent: (event) => dispatch(deleteEvent(event)),
-    cancelEdit: (event) => dispatch(actionCancelled(event))
+    updateEvent: (event) => dispatch(updateEvent(event)),
+    deleteEvent: (event) => dispatch(deleteEvent(event))
   })
 )(NewTaskView)
