@@ -113,12 +113,13 @@ export function getAll(user) {
   return async (dispatch, getState) => {
     dispatch(getAllInProgress())
 
-    const accessToken = (user || getState().UserReducer.user).accessToken
-    const min = new Date('2017/11/01').toISOString()
+    const access_token  = (user || getState().UserReducer.user).accessToken
+    const single_event  = 'singleEvents=true'
+    const order_by      = 'orderBy=startTime'  
     try {
-      const response = await fetch(BASE_URL + '?timeMin=' + min, { 
+      const response = await fetch(BASE_URL + '?' + single_event + '&' + order_by, { 
         headers: {
-          Authorization: 'Bearer ' + accessToken
+          Authorization: 'Bearer ' + access_token
         }
       })
       if (!response.ok)
