@@ -115,9 +115,12 @@ export function getAll(user) {
 
     const access_token  = (user || getState().UserReducer.user).accessToken
     const single_event  = 'singleEvents=true'
-    const order_by      = 'orderBy=startTime'  
+    const order_by      = 'orderBy=startTime'
+    const max_results    = 'maxResults=2500'
+    const URL = BASE_URL + '?' + single_event + '&' + order_by + '&' + max_results
     try {
-      const response = await fetch(BASE_URL + '?' + single_event + '&' + order_by, { 
+      const response = await fetch(
+        URL, { 
         headers: {
           Authorization: 'Bearer ' + access_token
         }
