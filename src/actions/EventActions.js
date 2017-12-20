@@ -109,15 +109,25 @@ export function actionError(error) {
   }
 }
 
-export function getAll(user) {
+export function getAll(user, min, max) {
   return async (dispatch, getState) => {
     dispatch(getAllInProgress())
+    const TIME_PERIOD = 1000*60*60*24*15
+    if (!min) min = new Date(Date.now() - TIME_PERIOD)
+    if (!max) max = new Date(Date.now() + TIME_PERIOD)
 
     const access_token  = (user || getState().UserReducer.user).accessToken
     const single_event  = 'singleEvents=true'
     const order_by      = 'orderBy=startTime'
-    const max_results    = 'maxResults=2500'
-    const URL = BASE_URL + '?' + single_event + '&' + order_by + '&' + max_results
+    const max_results   = 'maxResults=2500'
+    const time_min      = 'timeMin='+min.toISOString()
+    const time_max      = 'timeMax='+max.toISOString()
+    let URL = BASE_URL + 
+      '?' + single_event + 
+      '&' + order_by + 
+      '&' + max_results +
+      '&' + time_min +
+      '&' + time_max
     try {
       const response = await fetch(
         URL, { 
@@ -131,6 +141,7 @@ export function getAll(user) {
       const list = JSON.parse(response._bodyInit).items.filter(item => (
         item.status != 'cancelled'
       ))
+      // console.log(list)
       dispatch(getAllSuccess(list))
     }
     catch(e) { getAllError(e) }

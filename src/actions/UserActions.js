@@ -35,6 +35,7 @@ export function signInSilently() {
 export function signInSuccess(user) {
     return dispatch => {
         dispatch(signInUpdated(user))
+        // debugger
         dispatch(getAll(user))
     }
 }

@@ -63,8 +63,8 @@ class NewTaskView extends Component {
   }
 
   submit() {
-    if (this.props.event && this.props.event.id == this.state.id)
-      this.props.updateEvent()
+    if (this.state.id)
+      this.props.updateEvent(this.state)
     else
       this.props.createEvent(this.state)
     Actions.data()
