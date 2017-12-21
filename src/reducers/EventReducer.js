@@ -2,11 +2,9 @@ import * as Actions from '../actions'
 
 const initialState = {
   data: [],
-  // dataLoaded: false,
-  // dataLoading: false,
-  // dataError: null,
+  data_loading: false,
+  data_error: null
   // loading: false,
-  // error: null
 }
 
 export default (state = initialState, action) => {
@@ -15,22 +13,19 @@ export default (state = initialState, action) => {
       return {
         ...state,
         data: [],
-        // dataLoaded: false,
-        // dataLoading: true
+        data_loading: true
       }
     case Actions.GET_ALL_SUCCESS:
       return {
         ...state,
-        // dataLoaded: true,
-        // dataLoading: false,
-        data: action.data
+        data: action.data,
+        data_loading: false
       }
     case Actions.GET_ALL_ERROR:
       return {
         ...state,
-        // dataLoaded: false,
-        // dataLoading: false,
-        // dataError: action.error
+        data_error: action.error,
+        data_loading: false
       }
     case Actions.ACTION_LOADING:
       return {
