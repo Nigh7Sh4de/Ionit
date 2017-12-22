@@ -3,8 +3,8 @@ import { getAll } from './EventActions'
 import GoogleSignIn from 'react-native-google-sign-in';
 
 GoogleSignIn.configure({
-    // clientID: '516748484660-l7rjdnvd8oafp38e0dut9r3l8ocgcser.apps.googleusercontent.com', //Laptop
-    clientID: '516748484660-e1713ne24akk8pk8qd5nhpc1nc25ibl0.apps.googleusercontent.com', //Desktop
+    // clientID: ' 516748484660-3bibe4sloi0cd9l1dfecqcn871nf8ie2.apps.googleusercontent.com ', //Debug
+    clientID: '516748484660-e1713ne24akk8pk8qd5nhpc1nc25ibl0.apps.googleusercontent.com', //Release
     scopes: [
       'https://www.googleapis.com/auth/calendar'
     ]
