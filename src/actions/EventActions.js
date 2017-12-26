@@ -113,11 +113,13 @@ export function getAll(user) {
   return async (dispatch, getState) => {
     dispatch(getAllInProgress())
 
+    const fields = 'fields=items(id,summary,start,end,extendedProperties)'
+
     const access_token  = (user || getState().UserReducer.user).accessToken
     const single_event  = 'singleEvents=true'
     const order_by      = 'orderBy=startTime'
     const max_results    = 'maxResults=2500'
-    const URL = BASE_URL + '?' + single_event + '&' + order_by + '&' + max_results
+    const URL = BASE_URL + '?' + single_event + '&' + order_by + '&' + max_results + '&' + fields
     try {
       const response = await fetch(
         URL, { 
@@ -127,7 +129,7 @@ export function getAll(user) {
       })
       if (!response.ok)
         throw JSON.parse(response._bodyInit).error
-        
+
       const list = JSON.parse(response._bodyInit).items.filter(item => (
         item.status != 'cancelled'
       ))
