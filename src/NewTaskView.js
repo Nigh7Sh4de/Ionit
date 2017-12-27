@@ -9,7 +9,8 @@ import {
   TextInput,
   Button,
   StyleSheet,
-  Picker
+  Picker,
+  Switch
 } from 'react-native'
 
 import {
@@ -22,8 +23,12 @@ import Styles from './Styles'
 
 const hour = 1000 * 60 * 60
 
+round_now_to_hour = () => {
+  return new Date(Math.ceil(Date.now() / hour ) * hour)
+}
+
 generate_def_state = () => {
-  const next = new Date(Math.ceil(Date.now() / hour ) * hour)
+  const next = round_now_to_hour()
   const later = new Date(next.getTime() + hour)
   return {
     summary: '',
@@ -41,6 +46,23 @@ generate_def_state = () => {
   }
 }
 
+parseDate = (o) => {
+  if (typeof o === 'string') {
+    if (o.length < 11) return new Date(o + ' ')
+    else return new Date(o)
+   }
+
+  const result = new Date(o.date ? o.date + ' ' : o.dateTime)
+  if (isNaN(result.getTime())) return null
+  else return result
+}
+
+toISODateString = (date) => {
+  const d = new Date(date)
+  d.setHours(0)
+  return d.toISOString().substr(0, 10)
+}
+
 class NewTaskView extends Component {
   constructor(props) {
     super(props)
@@ -52,7 +74,7 @@ class NewTaskView extends Component {
     const routeName = this.props.navigation.state.params.routeName
     if (eventId) {
       if (routeName == 'editTask')
-        this.setState(this.props.data.find(i => i.id == eventId))
+       this.setState(this.props.data.find(i => i.id == eventId))
       else if (routeName == 'newSubTask')
         this.updateParent(eventId)
     }
@@ -79,16 +101,50 @@ class NewTaskView extends Component {
     Actions.data()
   }
 
-  updateStart(start) {
-    const date = new Date(start)
+  updateAllDay(all_day) {
+    let now
+    if (all_day) now = new Date(this._start_date_time = this.state.start.dateTime)
+    else now = new Date(this._start_date_time)
+
+    const later = new Date(now.valueOf() + 1000*60*60)
     this.setState({
-      start: { dateTime: new Date(date).toISOString() }, 
-      end: { dateTime: new Date(date.getTime() + hour).toISOString() }
+      start: {
+        dateTime: all_day ? undefined : now.toISOString(),
+        date: all_day ? toISODateString(now) : undefined
+      },
+      end: {
+        dateTime: all_day ? undefined : later.toISOString(),
+        date: all_day ? toISODateString(now) : undefined
+      }
+    })
+  }
+
+  updateStart(start) {
+    const all_day = !!this.state.start.date
+    const delta = parseDate(this.state.end) - parseDate(this.state.start)
+    const d_start = parseDate(start)
+    const d_end = new Date(d_start.valueOf() + delta)
+
+    this.setState({
+      start: { 
+        dateTime: all_day ? undefined : d_start.toISOString(),
+        date: all_day ? toISODateString(d_start) : undefined
+      }, 
+      end: {
+        dateTime: all_day ? undefined : d_end.toISOString(),
+        date: all_day ? toISODateString(d_end) : undefined
+      }
     })
   }
 
   updateEnd(end) {
-    this.setState({ end: { dateTime: new Date(end).toISOString() }})
+    const all_day = !!this.state.end.date
+    this.setState({ 
+      end: { 
+        dateTime: all_day ? undefined : end.toISOString(),
+        date: all_day ? end.toISOString().substr(0, 10) : undefined
+      }
+    })
   }
 
   updateParent(parent) {
@@ -129,16 +185,21 @@ class NewTaskView extends Component {
           placeholder="New task"
           onChangeText={summary=>this.setState({ summary })} 
           value={this.state.summary} />
+        <Text>All Day:</Text>
+        <Switch
+          onValueChange={this.updateAllDay.bind(this)}
+          value={!!this.state.start.date}
+          />
         <Text>Start: </Text>
         <DatePicker
-          mode="datetime"
-          date={new Date(this.state.start.dateTime)}
+          mode={!!this.state.start.date ? "date" : "datetime"}
+          date={parseDate(this.state.start)}
           onDateChange={this.updateStart.bind(this)}
           />
         <Text>End: </Text>
         <DatePicker
-          mode="datetime"
-          date={new Date(this.state.end.dateTime)}
+          mode={!!this.state.end.date ? "date" : "datetime"}
+          date={parseDate(this.state.end)}
           onDateChange={this.updateEnd.bind(this)}
           />
         <Picker 
