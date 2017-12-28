@@ -12,5 +12,8 @@ export default StyleSheet.create({
     },
     fixedRow: {
         height: 100,
+        backgroundColor: '#e8e8e8',
+        borderWidth: 1,
+        borderColor: 'black',
     }
 })

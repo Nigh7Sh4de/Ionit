@@ -3,9 +3,6 @@ import { connect } from 'react-redux';
 import { Actions as Screens } from 'react-native-router-flux';
 
 import {
-  editEvent
-} from '~/actions/EventActions'
-import {
   signOut
 } from '~/actions/UserActions'
 
@@ -13,7 +10,8 @@ import {
   Text,
   View,
   Button,
-  FlatList
+  FlatList,
+  TouchableOpacity
 } from 'react-native'
 
 import FilterView from '~/views/FilterView'
@@ -44,15 +42,13 @@ class DataView extends Component {
 
   renderItem({item}) {
     return (
-      <View style={Styles.fixedRow}>
-        <Button
-          onPress={() => this.props.editEvent(item.id)}
-          title="Edit"
-          />
+      <TouchableOpacity 
+        style={Styles.fixedRow} 
+        onPress={() => this.props.goToEvent(item.id)}>
         <Text>
           Item: {item.summary} {item.start.dateTime}-{item.end.dateTime}
         </Text>
-      </View>
+      </TouchableOpacity>
     )
   }
 
@@ -107,7 +103,7 @@ export default connect(
     loading: EventReducer.data_loading
   }),
   (dispatch) => ({
-    editEvent: id => Screens.editEvent({ id }),
+    goToEvent: id => Screens.event({ id }),
     createEvent: () => Screens.newEvent(),
     signOut: () => dispatch(signOut())
 
