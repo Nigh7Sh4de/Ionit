@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import DatePicker from 'react-native-datepicker'
-import { Actions } from 'react-native-router-flux'
+import { Actions as Screens } from 'react-native-router-flux'
 
 import {
   View,
@@ -63,7 +63,7 @@ toISODateString = (date) => {
   return d.toISOString().substr(0, 10)
 }
 
-class NewTaskView extends Component {
+class EditEventView extends Component {
   constructor(props) {
     super(props)
     this.state = generate_def_state()
@@ -73,32 +73,38 @@ class NewTaskView extends Component {
     const eventId = this.props.navigation.state.params.id
     const routeName = this.props.navigation.state.params.routeName
     if (eventId) {
-      if (routeName == 'editTask')
+      if (routeName == 'editEvent')
        this.setState(this.props.data.find(i => i.id == eventId))
-      else if (routeName == 'newSubTask')
+      else if (routeName == 'newChildEvent')
         this.updateParent(eventId)
     }
   }
 
-  addSubTask() {
-    Actions.newSubTask({ id: this.state.id })
+  addChildEvent() {
+    Screens.newChildEvent({ id: this.state.id })
   }
 
   submit() {
-    if (this.props.event && this.props.event.id == this.state.id)
-      this.props.updateEvent()
-    else
-      this.props.createEvent(this.state)
-    Actions.data()
+    switch(this.props.navigation.state.params.routeName) {
+      case 'editEvent':
+        this.props.updateEvent(this.state)
+        break;
+      case 'newChildEvent':
+      case 'newEvent':
+        this.props.createEvent(this.state)
+        break;
+    }
+    
+    Screens.data()
   }
 
   delete() {
     this.props.deleteEvent(this.state)
-    Actions.data()
+    Screens.data()
   }
 
   cancel() {
-    Actions.data()
+    Screens.data()
   }
 
   updateAllDay(all_day) {
@@ -182,7 +188,7 @@ class NewTaskView extends Component {
       <View style={Styles.container}>
         <Text>Name: </Text>
         <TextInput 
-          placeholder="New task"
+          placeholder="Event Name"
           onChangeText={summary=>this.setState({ summary })} 
           value={this.state.summary} />
         <Text>All Day:</Text>
@@ -213,8 +219,8 @@ class NewTaskView extends Component {
           disabled={!this.state.summary}
           />
         <Button 
-          title="Add Sub-Task"
-          onPress={this.addSubTask.bind(this)}
+          title="Add Child Event"
+          onPress={this.addChildEvent.bind(this)}
           color="#2b5"
           disabled={!this.state.id} />
         <Button 
@@ -239,4 +245,4 @@ export default connect(
     updateEvent: (event) => dispatch(updateEvent(event)),
     deleteEvent: (event) => dispatch(deleteEvent(event))
   })
-)(NewTaskView)
+)(EditEventView)

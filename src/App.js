@@ -17,16 +17,16 @@ import {
 
 import LoginView from './LoginView'
 import DataView from './DataView'
-import NewTaskView from './NewTaskView'
+import EditEventView from './EditEventView'
 
 import Styles from './Styles'
 
 const Scenes = Actions.create(
   <Stack key='root'>
     <Scene key='data' component={DataView} title='Data' />
-    <Scene key='newTask' path='/task/new' component={NewTaskView} title='New Task' />
-    <Scene key='editTask' path='/task/:id' component={NewTaskView} title='Edit Task' />
-    <Scene key='newSubTask' path='/task/:id/sub' component={NewTaskView} title='New Sub Task' />
+    <Scene key='newEvent' path='/event/new' component={EditEventView} title='New Event' />
+    <Scene key='editEvent' path='/event/:id' component={EditEventView} title='Edit Event' />
+    <Scene key='newChildEvent' path='/event/:id/child' component={EditEventView} title='New Child Event' />
   </Stack>
 )
 

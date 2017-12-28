@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
-import { Actions } from 'react-native-router-flux';
+import { Actions as Screens } from 'react-native-router-flux';
 
 import {
   editEvent
@@ -93,7 +93,7 @@ class DataView extends Component {
           updateFilter={this.updateFilter.bind(this)}
           />
         <Text>
-          Tasks:
+          Events:
         </Text>
         {data_view}
       </View>
@@ -107,8 +107,8 @@ export default connect(
     loading: EventReducer.data_loading
   }),
   (dispatch) => ({
-    editEvent: id => Actions.editTask({ id }),
-    createEvent: Actions.newTask,
+    editEvent: id => Screens.editEvent({ id }),
+    createEvent: () => Screens.newEvent(),
     signOut: () => dispatch(signOut())
 
   })
