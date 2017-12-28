@@ -17,7 +17,6 @@ import {
 
 import LoginView from '~/views/LoginView'
 import DataView from '~/views/DataView'
-import EventDetailView from '~/views/EventDetailView'
 import EditEventView from '~/views/EditEventView'
 
 import Styles from './Styles'
@@ -25,7 +24,7 @@ import Styles from './Styles'
 const Scenes = Actions.create(
   <Stack key='root'>
     <Scene key='data' component={DataView} title='Data' />
-    <Scene key='event' path='/event/:id' component={EventDetailView} title='Event' />
+    <Scene key='event' path='/event/:id' component={DataView} title='Data' />
     <Scene key='newEvent' path='/event/new' component={EditEventView} title='New Event' />
     <Scene key='editEvent' path='/event/:id/edit' component={EditEventView} title='Edit Event' />
     <Scene key='newChildEvent' path='/event/:id/newchild' component={EditEventView} title='New Child Event' />
