@@ -17,9 +17,9 @@ import {
   createEvent,
   updateEvent,
   deleteEvent
-} from './actions/EventActions'
+} from '~/actions/EventActions'
 
-import Styles from './Styles'
+import Styles from '~/Styles'
 
 const hour = 1000 * 60 * 60
 

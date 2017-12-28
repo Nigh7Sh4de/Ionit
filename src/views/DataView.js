@@ -4,10 +4,10 @@ import { Actions as Screens } from 'react-native-router-flux';
 
 import {
   editEvent
-} from './actions/EventActions'
+} from '~/actions/EventActions'
 import {
   signOut
-} from './actions/UserActions'
+} from '~/actions/UserActions'
 
 import {
   Text,
@@ -16,9 +16,9 @@ import {
   FlatList
 } from 'react-native'
 
-import FilterView from './FilterView'
+import FilterView from '~/views/FilterView'
 
-import Styles from './Styles'
+import Styles from '~/Styles'
 
 class DataView extends Component {
   constructor(props) {

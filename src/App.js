@@ -15,9 +15,9 @@ import {
   signInSilently,
 } from './actions/UserActions'
 
-import LoginView from './LoginView'
-import DataView from './DataView'
-import EditEventView from './EditEventView'
+import LoginView from '~/views/LoginView'
+import DataView from '~/views/DataView'
+import EditEventView from '~/views/EditEventView'
 
 import Styles from './Styles'
 
