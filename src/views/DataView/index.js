@@ -14,15 +14,18 @@ import {
   TouchableOpacity
 } from 'react-native'
 
+import DataRowView from '~/views/DataView/DataRowView'
+import DataRowExpandedView from '~/views/DataView/DataRowExpandedView'
 import FilterView from '~/views/FilterView'
-
 import Styles from '~/Styles'
+
 
 class DataView extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      data: props.data
+      data: props.data,
+      expanded_event: props.navigation.state.params.id
     }
   }
 
@@ -39,20 +42,37 @@ class DataView extends Component {
       })
     })
   }
-
-  renderItem({item}) {
-    return (
-      <TouchableOpacity 
-        style={Styles.fixedRow} 
-        onPress={() => this.props.goToEvent(item.id)}>
-        <Text>
-          Item: {item.summary} {item.start.dateTime}-{item.end.dateTime}
-        </Text>
-      </TouchableOpacity>
+  
+  expandEvent(id) {
+    this.setState({
+      expanded_event: id
+    }, () => 
+      this._list_ref.scrollToIndex({
+        animated: true,
+        index: this.props.data.findIndex(i=>i.id===id)
+      })
     )
   }
 
+  collapseEvent() {
+    this.setState({
+      expanded_event: null
+    })
+  }
+
+  renderItem({item}) {
+    if (this.state.expanded_event === item.id)
+      return <DataRowExpandedView collapseEvent={this.collapseEvent.bind(this)} id={item.id} />
+    else return <DataRowView expandEvent={this.expandEvent.bind(this)} id={item.id} />
+  }
+
   render() {
+    const now = new Date()
+    const initial_scroll_index = this.props.navigation.state.params.id ?
+      this.props.data.findIndex(i => i.id === this.props.navigation.state.params.id)
+      :
+      this.props.data.findIndex(i=>new Date(i.start.date || i.start.dateTime) > now)
+
     let data_view
     if (this.props.data.length === 0) {
       if (this.props.loading) data_view = <Text>Loading...</Text>
@@ -60,10 +80,11 @@ class DataView extends Component {
     }
     else data_view = (
       <FlatList 
+        ref={ref => this._list_ref = ref}
         style={Styles.container}
         data={this.props.data}
         renderItem={this.renderItem.bind(this)}
-        initialScrollIndex={this.props.data.findIndex(i=>new Date(i.start.date || i.start.dateTime) > new Date())}
+        initialScrollIndex={initial_scroll_index}
         getItemLayout={(data, index) => ({
           offset: index * 100,
           length: 100,
@@ -103,7 +124,6 @@ export default connect(
     loading: EventReducer.data_loading
   }),
   (dispatch) => ({
-    goToEvent: id => Screens.event({ id }),
     createEvent: () => Screens.newEvent(),
     signOut: () => dispatch(signOut())
 
