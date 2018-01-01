@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import {
   signIn,
   signOut
-} from '~/actions/UserActions'
+} from 'src/actions/UserActions'
 
 import {
     View,
