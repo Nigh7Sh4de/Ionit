@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native'
 
 export default StyleSheet.create({
     blue: {
@@ -10,10 +10,22 @@ export default StyleSheet.create({
       borderColor: 'black',
       backgroundColor: '#eee'
     },
-    fixedRow: {
+    dataRow: {
         height: 100,
         backgroundColor: '#e8e8e8',
         borderWidth: 1,
         borderColor: 'black',
-    }
+    },
+    expandedRowDetail: {
+        height: 100,
+        backgroundColor: 'white',
+    },
+    expandedRowParent: {
+        height: 40,
+        backgroundColor: '#dddddd',
+    },
+    expandedRowChild: {
+        height: 40,
+        backgroundColor: '#dddddd',
+    },
 })

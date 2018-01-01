@@ -4,7 +4,7 @@ import { Actions as Screens } from 'react-native-router-flux';
 
 import {
   signOut
-} from '~/actions/UserActions'
+} from 'src/actions/UserActions'
 
 import {
   Text,
@@ -14,18 +14,66 @@ import {
   TouchableOpacity
 } from 'react-native'
 
-import DataRowView from '~/views/DataView/DataRowView'
-import DataRowExpandedView from '~/views/DataView/DataRowExpandedView'
-import FilterView from '~/views/FilterView'
-import Styles from '~/Styles'
+import DataRowView from 'src/views/DataView/DataRowView'
+import DataRowExpandedView from 'src/views/DataView/DataRowExpandedView'
+import FilterView from 'src/views/FilterView'
+import Styles from 'src/Styles'
 
+getExpandedObject = (id, data) => {
+  let expanded_id = id,
+      expanded_index,
+      expanded_length = 140
+
+  if (id) 
+    data.forEach((i, index) => {
+      if (i.id === id)
+        expanded_index = i
+      else if (i.extendedProperties && 
+          i.extendedProperties.shared &&
+          i.extendedProperties.shared.parent === id)
+        expanded_length += 40
+    })
+
+  return {
+    expanded_id,
+    expanded_index,
+    expanded_length
+  }
+}
 
 class DataView extends Component {
   constructor(props) {
     super(props)
+    const expanded = getExpandedObject(props.navigation.state.params.id, props.data)
+    
     this.state = {
       data: props.data,
-      expanded_event: props.navigation.state.params.id
+      ...expanded
+    }
+  }
+
+  componentWillUpdate(nextProps) {
+    if (this.props.data.length === 0) {
+      if (nextProps.loading) this._data_view = 
+        <Text>Loading...</Text>
+      else if (nextProps.data.length === 0) this._data_view = 
+        <Text>You currently have no events</Text>
+      else {
+        const now = new Date()
+        const initial_scroll_index = this.state.expanded_id || 
+          nextProps.data.findIndex(i=>
+            new Date(i.start.date || i.start.dateTime) > now
+          )
+        this._data_view = <FlatList 
+          ref={ref => this._list_ref = ref}
+          style={Styles.container}
+          data={nextProps.data}
+          renderItem={this.renderItem.bind(this)}
+          initialScrollIndex={initial_scroll_index}
+          getItemLayout={this.getItemLayout.bind(this)}
+          keyExtractor={item => item.id}
+        />
+      }
     }
   }
 
@@ -44,8 +92,19 @@ class DataView extends Component {
   }
   
   expandEvent(id) {
+    this.setState(getExpandedObject(id, this.props.data), () => 
+      this._list_ref.scrollToIndex({
+        animated: true,
+        index: this.props.data.findIndex(i=>i.id===id)
+      })
+    )
+  }
+
+  collapseEvent(id) {
     this.setState({
-      expanded_event: id
+      expanded_id: null,
+      expanded_index: undefined,
+      expanded_length: undefined
     }, () => 
       this._list_ref.scrollToIndex({
         animated: true,
@@ -54,46 +113,41 @@ class DataView extends Component {
     )
   }
 
-  collapseEvent() {
-    this.setState({
-      expanded_event: null
-    })
+  renderItem({item, index}) {
+    if (this.state.expanded_id === item.id)
+      return <DataRowExpandedView 
+        collapseEvent={this.collapseEvent.bind(this)} 
+        expandEvent={this.expandEvent.bind(this)} 
+        id={item.id} 
+        />
+        
+    else return <DataRowView 
+      expandEvent={this.expandEvent.bind(this)} 
+      id={item.id} 
+      />
   }
 
-  renderItem({item}) {
-    if (this.state.expanded_event === item.id)
-      return <DataRowExpandedView collapseEvent={this.collapseEvent.bind(this)} id={item.id} />
-    else return <DataRowView expandEvent={this.expandEvent.bind(this)} id={item.id} />
+  getItemLayout(data, index) {
+    if (this.state.expanded_index && index === this.state.expanded_index)
+      return {
+        offset: index * 100,
+        length: this.state.expanded_length,
+        index
+      }
+    else if (this.state.expanded_index && index > this.state.expanded_index)
+      return {
+        offset: (index - 1) * 100 + this.state.expanded_length,
+        length: 100,
+        index
+      }
+    else return {
+      offset: index * 100,
+      length: 100,
+      index
+    }
   }
 
   render() {
-    const now = new Date()
-    const initial_scroll_index = this.props.navigation.state.params.id ?
-      this.props.data.findIndex(i => i.id === this.props.navigation.state.params.id)
-      :
-      this.props.data.findIndex(i=>new Date(i.start.date || i.start.dateTime) > now)
-
-    let data_view
-    if (this.props.data.length === 0) {
-      if (this.props.loading) data_view = <Text>Loading...</Text>
-      else data_view = <Text>You currently have no events</Text>
-    }
-    else data_view = (
-      <FlatList 
-        ref={ref => this._list_ref = ref}
-        style={Styles.container}
-        data={this.props.data}
-        renderItem={this.renderItem.bind(this)}
-        initialScrollIndex={initial_scroll_index}
-        getItemLayout={(data, index) => ({
-          offset: index * 100,
-          length: 100,
-          index
-        })}
-        keyExtractor={item => item.id}
-        />
-    )
-
     return (
       <View>
         <Button
@@ -112,7 +166,7 @@ class DataView extends Component {
         <Text>
           Events:
         </Text>
-        {data_view}
+        {this._data_view}
       </View>
     )
   }
