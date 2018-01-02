@@ -1,9 +1,10 @@
 {
-  "name": "Ionit",
-  "version": "0.0.1",
+  "name": "ionit",
+  "version": "0.1.1",
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
+    "release": "cd android && gradlew assembleRelease && cd ..",
     "test": "jest"
   },
   "dependencies": {
