@@ -1,18 +1,22 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react'
+import { connect } from 'react-redux'
 
 import {
   Text,
   View,
   Switch
-} from 'react-native';
+} from 'react-native'
+
+import {
+  updateFilter
+} from 'src/actions/EventActions'
 
 
-export default class FilterView extends Component {
+class FilterView extends PureComponent {
   constructor(props) {
     super(props)
     this.state = {
-      master: false,
-      ionit: false
+      master: false
     }
   }
 
@@ -24,10 +28,6 @@ export default class FilterView extends Component {
     this.setState({ master }, this.updateFilter)
   }
 
-  updateIonit(ionit) {
-    this.setState({ ionit }, this.updateFilter)
-  }
-
   render() {
     return (
       <View>
@@ -36,12 +36,13 @@ export default class FilterView extends Component {
           onValueChange={this.updateMaster.bind(this)}
           value={this.state.master}
           />
-        <Text>Only ionit:</Text>
-        <Switch
-          onValueChange={this.updateIonit.bind(this)}
-          value={this.state.ionit}
-          />
       </View>
     )
   }
 }
+
+export default connect(({ EventReducer }) => ({
+  
+}), dispatch => ({
+  updateFilter: filter => dispatch(updateFilter(filter))
+}))(FilterView)

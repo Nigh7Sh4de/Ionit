@@ -4,6 +4,8 @@ const initialState = {
   data: [],
   data_loading: false,
   data_error: null,
+  
+  filtered_data: [],
 
   expanded_id: null,
   expanded_length: undefined,
@@ -42,12 +44,14 @@ export default (state = initialState, action) => {
       return {
         ...state,
         data: [],
+        filtered_data: [],
         data_loading: true
       }
     case Actions.GET_ALL_SUCCESS:
       return {
         ...state,
         data: action.data,
+        filtered_data: action.data,
         data_loading: false
       }
     case Actions.GET_ALL_ERROR:
@@ -75,24 +79,39 @@ export default (state = initialState, action) => {
     case Actions.EVENT_UPDATED:
       return {
         ...state,
-        data: state.data.filter(i => i.id != action.event.id).concat([action.event])
+        data: state.data.filter(i => i.id != action.event.id).concat([action.event]),
+        filtered_data: state.filtered_data.filter(i => i.id != action.event.id).concat([action.event])
       }
     case Actions.EVENT_DELETED:
       return {
         ...state,
-        data: state.data.filter(i => i.id != action.event.id)
+        data: state.data.filter(i => i.id != action.event.id),
+        filtered_data: state.filtered_data.filter(i => i.id != action.event.id)
       }
     case Actions.EVENT_FOCUSED:
-      const expanded = getExpandedObject(action.id, state.data)
+      let filtered_data = state.filtered_data
+      if (!filtered_data.find(i=>i.id===action.id))
+        filtered_data = [...state.data]
+    
+      const expanded = getExpandedObject(action.id, filtered_data)
+
       return {
         ...state,
-        ...expanded
+        ...expanded,
+        filtered_data
       }
     case Actions.EVENT_UNFOCUSED:
       const collapsed = getExpandedObject(null, state.data)
       return {
         ...state,
         ...collapsed
+      }
+    case Actions.FILTER_UPDATED:
+      return {
+        ...state,
+        filtered_data: state.data.filter(i => (
+          !(action.filter.master && i.extendedProperties && i.extendedProperties.shared.parent)
+        )),
       }
     default: return state
   }

@@ -169,3 +169,10 @@ export function unfocusEvent(id) {
     id
   }
 }
+
+export function updateFilter(filter) {
+  return {
+    type: Actions.FILTER_UPDATED,
+    filter
+  }
+}
