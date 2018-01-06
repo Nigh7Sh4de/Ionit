@@ -156,3 +156,16 @@ export function getAllError(error) {
     error
   }
 }
+
+export function focusEvent(id) {
+  return {
+    type: Actions.EVENT_FOCUSED,
+    id
+  }
+}
+export function unfocusEvent(id) {
+  return {
+    type: Actions.EVENT_UNFOCUSED,
+    id
+  }
+}

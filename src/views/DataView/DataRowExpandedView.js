@@ -6,8 +6,14 @@ import {
   TouchableOpacity,
   Button
 } from 'react-native'
-import Styles from 'src/Styles';
-import { Actions as Screens } from 'react-native-router-flux';
+import { Actions as Screens } from 'react-native-router-flux'
+
+import {
+  focusEvent,
+  unfocusEvent
+} from 'src/actions/EventActions'
+
+import Styles from 'src/Styles'
 
 
 class DataRowExpandedView extends PureComponent {
@@ -63,5 +69,7 @@ export default connect(({ EventReducer }, { id }) => {
     children
   }
 }, dispatch => ({
-  editEvent: id => Screens.editEvent({ id })
+  editEvent: id => Screens.editEvent({ id }),
+  expandEvent: id => dispatch(focusEvent(id)),
+  collapseEvent: id => dispatch(unfocusEvent(id))
 }))(DataRowExpandedView)

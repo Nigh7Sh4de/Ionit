@@ -16,6 +16,7 @@ import {
 
 import DataRowView from 'src/views/DataView/DataRowView'
 import DataRowExpandedView from 'src/views/DataView/DataRowExpandedView'
+import DataListView from 'src/views/DataView/DataListView'
 import FilterView from 'src/views/FilterView'
 import Styles from 'src/Styles'
 
@@ -42,15 +43,6 @@ getExpandedObject = (id, data) => {
 }
 
 class DataView extends Component {
-  constructor(props) {
-    super(props)
-    const expanded = getExpandedObject(props.navigation.state.params.id, props.data)
-    
-    this.state = {
-      data: props.data,
-      ...expanded
-    }
-  }
 
   componentWillUpdate(nextProps) {
     if (this.props.data.length === 0) {
@@ -60,19 +52,13 @@ class DataView extends Component {
         <Text>You currently have no events</Text>
       else {
         const now = new Date()
-        const initial_scroll_index = this.state.expanded_id || 
+        const initial_scroll_index = this.props.expanded_id || 
           nextProps.data.findIndex(i=>
             new Date(i.start.date || i.start.dateTime) > now
           )
-        this._data_view = <FlatList 
-          ref={ref => this._list_ref = ref}
-          style={Styles.container}
-          data={nextProps.data}
-          renderItem={this.renderItem.bind(this)}
+        this._data_view = <DataListView 
           initialScrollIndex={initial_scroll_index}
-          getItemLayout={this.getItemLayout.bind(this)}
-          keyExtractor={item => item.id}
-        />
+          />
       }
     }
   }
@@ -89,62 +75,6 @@ class DataView extends Component {
         return true;
       })
     })
-  }
-  
-  expandEvent(id) {
-    this.setState(getExpandedObject(id, this.props.data), () => 
-      this._list_ref.scrollToIndex({
-        animated: true,
-        index: this.props.data.findIndex(i=>i.id===id)
-      })
-    )
-  }
-
-  collapseEvent(id) {
-    this.setState({
-      expanded_id: null,
-      expanded_index: undefined,
-      expanded_length: undefined
-    }, () => 
-      this._list_ref.scrollToIndex({
-        animated: true,
-        index: this.props.data.findIndex(i=>i.id===id)
-      })
-    )
-  }
-
-  renderItem({item, index}) {
-    if (this.state.expanded_id === item.id)
-      return <DataRowExpandedView 
-        collapseEvent={this.collapseEvent.bind(this)} 
-        expandEvent={this.expandEvent.bind(this)} 
-        id={item.id} 
-        />
-        
-    else return <DataRowView 
-      expandEvent={this.expandEvent.bind(this)} 
-      id={item.id} 
-      />
-  }
-
-  getItemLayout(data, index) {
-    if (this.state.expanded_index && index === this.state.expanded_index)
-      return {
-        offset: index * 100,
-        length: this.state.expanded_length,
-        index
-      }
-    else if (this.state.expanded_index && index > this.state.expanded_index)
-      return {
-        offset: (index - 1) * 100 + this.state.expanded_length,
-        length: 100,
-        index
-      }
-    else return {
-      offset: index * 100,
-      length: 100,
-      index
-    }
   }
 
   render() {
