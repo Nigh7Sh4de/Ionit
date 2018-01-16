@@ -11,9 +11,6 @@ import { Actions, Router, Scene, Stack } from 'react-native-router-flux'
 import GoogleSignIn from 'react-native-google-sign-in';
 
 import UserReducer from './reducers/UserReducer'
-import {
-  signInSilently,
-} from './actions/UserActions'
 
 import LoginView from 'src/views/LoginView'
 import DataView from 'src/views/DataView'
@@ -32,11 +29,6 @@ const Scenes = Actions.create(
 )
 
 class App extends Component {
-  componentWillMount() {
-    if (!this.props.user)
-      this.props.signInSilently()
-  }
-
   render() {
     if (!!this.props.user)
       return (
@@ -51,6 +43,6 @@ export default connect(
     user: UserReducer.user
   }),
   (dispatch) => ({
-    signInSilently: () => dispatch(signInSilently()),
+
   })
 )(App)

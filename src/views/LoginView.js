@@ -15,6 +15,10 @@ import {
 
 class LoginView extends Component {
   render() {
+    let status = "Please click sign in to authenticate with Google"
+    if (this.props.loading) status = "Loading..."
+    if (this.props.error) status = this.props.error
+
     return (
       <View>
         <Button
@@ -28,6 +32,7 @@ class LoginView extends Component {
           disabled={!this.props.user}
           color="red"
           />
+        <Text>{status}</Text>
       </View>
     )
   }
@@ -35,7 +40,9 @@ class LoginView extends Component {
 
 export default connect(
   ({ UserReducer }) => ({
-    user: UserReducer.user
+    user: UserReducer.user,
+    error: UserReducer.error,
+    loading: UserReducer.loading
   }),
   (dispatch) => ({
     signIn: () => dispatch(signIn()),

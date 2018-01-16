@@ -31,7 +31,8 @@ export default (state = initialState, action) => {
     case Actions.USER_LOGOUT:
       return {
         ...state,
-        user: null
+        user: null,
+        loading: false
       }
     default: return state
   }
