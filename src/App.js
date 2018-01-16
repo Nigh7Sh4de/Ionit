@@ -33,7 +33,8 @@ const Scenes = Actions.create(
 
 class App extends Component {
   componentWillMount() {
-    this.props.signInSilently()
+    if (!this.props.user)
+      this.props.signInSilently()
   }
 
   render() {

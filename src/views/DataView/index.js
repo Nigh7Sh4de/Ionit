@@ -43,23 +43,30 @@ getExpandedObject = (id, data) => {
 }
 
 class DataView extends Component {
+  componentWillMount() {
+    this.generateDataView(this.props)
+  }
 
   componentWillUpdate(nextProps) {
     if (this.props.data.length === 0) {
-      if (nextProps.loading) this._data_view = 
-        <Text>Loading...</Text>
-      else if (nextProps.data.length === 0) this._data_view = 
-        <Text>You currently have no events</Text>
-      else {
-        const now = new Date()
-        const initial_scroll_index = this.props.expanded_id || 
-          nextProps.data.findIndex(i=>
-            new Date(i.start.date || i.start.dateTime) > now
-          )
-        this._data_view = <DataListView 
-          initialScrollIndex={initial_scroll_index}
-          />
-      }
+      this.generateDataView(nextProps)
+    }
+  }
+
+  generateDataView(props) {
+    if (props.loading) this._data_view = 
+      <Text>Loading...</Text>
+    else if (props.data.length === 0) this._data_view = 
+      <Text>You currently have no events</Text>
+    else {
+      const now = new Date()
+      const initial_scroll_index = props.expanded_id || 
+        props.data.findIndex(i=>
+          new Date(i.start.date || i.start.dateTime) > now
+        )
+      this._data_view = <DataListView 
+        initialScrollIndex={initial_scroll_index}
+        />
     }
   }
 
