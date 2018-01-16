@@ -48,7 +48,7 @@ class DataView extends Component {
   }
 
   componentWillUpdate(nextProps) {
-    if (this.props.data.length === 0) {
+    if (this.props.data.length === 0 || nextProps.data.length === 0) {
       this.generateDataView(nextProps)
     }
   }
