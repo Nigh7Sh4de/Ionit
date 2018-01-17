@@ -4,7 +4,8 @@ import { connect } from 'react-redux'
 import {
   Text,
   View,
-  Switch
+  Switch,
+  TextInput
 } from 'react-native'
 
 import {
@@ -16,7 +17,8 @@ class FilterView extends PureComponent {
   constructor(props) {
     super(props)
     this.state = {
-      master: false
+      master: false,
+      search: ''
     }
   }
 
@@ -28,9 +30,18 @@ class FilterView extends PureComponent {
     this.setState({ master }, this.updateFilter)
   }
 
+  updateSearch(search) {
+    this.setState({ search }, this.updateFilter)
+  }
+
   render() {
     return (
       <View>
+        <TextInput
+          placeholder="Search"
+          onChangeText={this.updateSearch.bind(this)}
+          value={this.state.search}
+          />
         <Text>Only master:</Text>
         <Switch
           onValueChange={this.updateMaster.bind(this)}
