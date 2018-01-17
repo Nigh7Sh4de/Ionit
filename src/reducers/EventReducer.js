@@ -1,4 +1,8 @@
+import storage from 'redux-persist/lib/storage';
 import * as Actions from '../actions'
+import persistReducer from 'redux-persist/lib/persistReducer';
+import createTransform from 'redux-persist/lib/createTransform';
+import createMigrate from 'redux-persist/lib/createMigrate';
 
 const initialState = {
   data: [],
@@ -110,7 +114,8 @@ export default (state = initialState, action) => {
       return {
         ...state,
         filtered_data: state.data.filter(i => (
-          !(action.filter.master && i.extendedProperties && i.extendedProperties.shared.parent)
+          !(action.filter.master && i.extendedProperties && i.extendedProperties.shared.parent) &&
+          !(action.filter.search && i.summary.toLocaleLowerCase().indexOf(action.filter.search.toLocaleLowerCase()))
         )),
       }
     default: return state
