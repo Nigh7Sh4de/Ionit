@@ -1,16 +1,17 @@
 import * as Actions from '../actions'
+import persistReducer from 'redux-persist/lib/persistReducer';
+import storage from 'redux-persist/lib/storage';
 
 const initialState = {
   data: [],
   data_loading: false,
   data_error: null,
   
-  filtered_data: [],
+  filtered_data: null,
 
   expanded_id: null,
   expanded_length: undefined,
   expanded_index: undefined
-  // loading: false,
 }
 
 getExpandedObject = (id, data) => {
@@ -38,7 +39,7 @@ getExpandedObject = (id, data) => {
   }
 }
 
-export default (state = initialState, action) => {
+const EventReducer = (state = initialState, action) => {
   switch(action.type) {
     case Actions.GET_ALL_LOADING:
       return {
@@ -80,18 +81,16 @@ export default (state = initialState, action) => {
       return {
         ...state,
         data: state.data.filter(i => i.id != action.event.id).concat([action.event]),
-        filtered_data: state.filtered_data.filter(i => i.id != action.event.id).concat([action.event])
+        filtered_data: state.data.filter(i => i.id != action.event.id).concat([action.event])
       }
     case Actions.EVENT_DELETED:
       return {
         ...state,
         data: state.data.filter(i => i.id != action.event.id),
-        filtered_data: state.filtered_data.filter(i => i.id != action.event.id)
+        filtered_data: state.data.filter(i => i.id != action.event.id)
       }
     case Actions.EVENT_FOCUSED:
-      let filtered_data = state.filtered_data
-      if (!filtered_data.find(i=>i.id===action.id))
-        filtered_data = [...state.data]
+      let filtered_data = [...state.data]
     
       const expanded = getExpandedObject(action.id, filtered_data)
 
@@ -110,9 +109,12 @@ export default (state = initialState, action) => {
       return {
         ...state,
         filtered_data: state.data.filter(i => (
-          !(action.filter.master && i.extendedProperties && i.extendedProperties.shared.parent)
+          !(action.filter.master && i.extendedProperties && i.extendedProperties.shared.parent) &&
+          !(action.filter.search && i.summary.toLocaleLowerCase().indexOf(action.filter.search.toLocaleLowerCase()) === -1)
         )),
       }
     default: return state
   }
 }
+
+export default EventReducer
