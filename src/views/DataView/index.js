@@ -20,37 +20,13 @@ import DataListView from 'src/views/DataView/DataListView'
 import FilterView from 'src/views/FilterView'
 import Styles from 'src/Styles'
 
-getExpandedObject = (id, data) => {
-  let expanded_id = id,
-      expanded_index,
-      expanded_length = 140
-
-  if (id) 
-    data.forEach((i, index) => {
-      if (i.id === id)
-        expanded_index = i
-      else if (i.extendedProperties && 
-          i.extendedProperties.shared &&
-          i.extendedProperties.shared.parent === id)
-        expanded_length += 40
-    })
-
-  return {
-    expanded_id,
-    expanded_index,
-    expanded_length
-  }
-}
-
 class DataView extends Component {
   componentWillMount() {
     this.generateDataView(this.props)
   }
 
   componentWillUpdate(nextProps) {
-    if (this.props.data.length === 0 || nextProps.data.length === 0) {
       this.generateDataView(nextProps)
-    }
   }
 
   generateDataView(props) {
@@ -58,16 +34,9 @@ class DataView extends Component {
       <Text>Loading...</Text>
     else if (props.data.length === 0) this._data_view = 
       <Text>You currently have no events</Text>
-    else {
-      const now = new Date()
-      const initial_scroll_index = props.expanded_id || 
-        props.data.findIndex(i=>
-          new Date(i.start.date || i.start.dateTime) > now
-        )
-      this._data_view = <DataListView 
-        initialScrollIndex={initial_scroll_index}
-        />
-    }
+    else if (props.filtered_data.length === 0) this._data_view = 
+      <Text>No search results</Text>
+    else this._data_view = <DataListView />
   }
 
   updateFilter(filter) {
@@ -112,6 +81,7 @@ class DataView extends Component {
 export default connect(
   ({ EventReducer }) => ({
     data: EventReducer.data,
+    filtered_data: EventReducer.filtered_data,
     loading: EventReducer.data_loading
   }),
   (dispatch) => ({

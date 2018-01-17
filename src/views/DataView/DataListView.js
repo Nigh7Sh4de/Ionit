@@ -11,6 +11,14 @@ import DataRowExpandedView from 'src/views/DataView/DataRowExpandedView'
 import Styles from 'src/Styles';
 
 class DataListView extends PureComponent {
+  componentWillMount() {
+    const now = new Date()
+    this._initial_scroll_index = this.props.expanded_index || 
+      this.props.data.findIndex(i=>
+        new Date(i.start.date || i.start.dateTime) > now
+      )
+  }
+  
   componentWillReceiveProps(nextProps) {
     if (this._list_ref &&
         nextProps.expanded_id !== this.props.expanded_id) {
@@ -68,7 +76,7 @@ class DataListView extends PureComponent {
       style={Styles.container}
       data={this.props.data}
       renderItem={this.renderItem.bind(this)}
-      initialScrollIndex={this.props.initialScrollIndex}
+      initialScrollIndex={this._intitial_scroll_index}
       getItemLayout={this.getItemLayout.bind(this)}
       keyExtractor={item => item.id}
     />
