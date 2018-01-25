@@ -76,7 +76,7 @@ class DataListView extends PureComponent {
       style={Styles.container}
       data={this.props.data}
       renderItem={this.renderItem.bind(this)}
-      initialScrollIndex={this._intitial_scroll_index}
+      initialScrollIndex={this._initial_scroll_index}
       getItemLayout={this.getItemLayout.bind(this)}
       keyExtractor={item => item.id}
     />
