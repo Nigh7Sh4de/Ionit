@@ -84,7 +84,10 @@ class DataListView extends PureComponent {
 }
 
 export default connect(({ EventReducer }) => ({
-  data: EventReducer.filtered_data,
+  data: EventReducer.data.filter(i => (
+    !(EventReducer.filter.master && i.extendedProperties && i.extendedProperties.shared.parent) &&
+    !(EventReducer.filter.search && i.summary.toLocaleLowerCase().indexOf(EventReducer.filter.search.toLocaleLowerCase()))
+  )),
   expanded_id: EventReducer.expanded_id,
   expanded_index: EventReducer.expanded_index,
   expanded_length: EventReducer.expanded_length

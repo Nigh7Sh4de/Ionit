@@ -9,7 +9,10 @@ const initialState = {
   data_loading: false,
   data_error: null,
   
-  filtered_data: [],
+  filter: {
+    master: false,
+    search: ''
+  },
 
   expanded_id: null,
   expanded_length: undefined,
@@ -48,14 +51,12 @@ export default (state = initialState, action) => {
       return {
         ...state,
         data: [],
-        filtered_data: [],
         data_loading: true
       }
     case Actions.GET_ALL_SUCCESS:
       return {
         ...state,
         data: action.data,
-        filtered_data: action.data,
         data_loading: false
       }
     case Actions.GET_ALL_ERROR:
@@ -84,14 +85,13 @@ export default (state = initialState, action) => {
       return {
         ...state,
         data: state.data.filter(i => i.id != action.event.id).concat([action.event]),
-        filtered_data: state.filtered_data.filter(i => i.id != action.event.id).concat([action.event])
       }
     case Actions.EVENT_DELETED:
       return {
         ...state,
         data: state.data.filter(i => i.id != action.event.id),
-        filtered_data: state.filtered_data.filter(i => i.id != action.event.id)
       }
+    //TODO fix filter event focus
     case Actions.EVENT_FOCUSED:
       let filtered_data = state.filtered_data
       if (!filtered_data.find(i=>i.id===action.id))
@@ -113,10 +113,10 @@ export default (state = initialState, action) => {
     case Actions.FILTER_UPDATED:
       return {
         ...state,
-        filtered_data: state.data.filter(i => (
-          !(action.filter.master && i.extendedProperties && i.extendedProperties.shared.parent) &&
-          !(action.filter.search && i.summary.toLocaleLowerCase().indexOf(action.filter.search.toLocaleLowerCase()))
-        )),
+        filter: {
+          ...state.filter,
+          ...action.filter
+        }
       }
     default: return state
   }

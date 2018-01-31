@@ -14,24 +14,16 @@ import {
 
 
 class FilterView extends PureComponent {
-  constructor(props) {
-    super(props)
-    this.state = {
-      master: false,
-      search: ''
-    }
-  }
-
   updateFilter() {
     this.props.updateFilter(this.state)
   }
 
   updateMaster(master) {
-    this.setState({ master }, this.updateFilter)
+    this.updateFilter({ master })
   }
 
   updateSearch(search) {
-    this.setState({ search }, this.updateFilter)
+    this.updateFilter({ search })
   }
 
   render() {
@@ -40,12 +32,12 @@ class FilterView extends PureComponent {
         <TextInput
           placeholder="Search"
           onChangeText={this.updateSearch.bind(this)}
-          value={this.state.search}
+          value={this.props.filter.search}
           />
         <Text>Only master:</Text>
         <Switch
           onValueChange={this.updateMaster.bind(this)}
-          value={this.state.master}
+          value={this.props.filter.master}
           />
       </View>
     )
@@ -53,7 +45,7 @@ class FilterView extends PureComponent {
 }
 
 export default connect(({ EventReducer }) => ({
-  
+  filter: EventReducer.filter
 }), dispatch => ({
   updateFilter: filter => dispatch(updateFilter(filter))
 }))(FilterView)
